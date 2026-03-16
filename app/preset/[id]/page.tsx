@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 export default function PresetPage() {
 
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
 
   const [preset, setPreset] = useState<any>(null);
@@ -83,6 +84,35 @@ export default function PresetPage() {
 
       <Navbar />
 
+      {/* BACK BUTTON */}
+      <div className="max-w-6xl mx-auto px-6 pt-8">
+
+        <button
+          onClick={() => router.back()}
+          className="group flex items-center text-gray-300 text-sm transition-all duration-300 hover:text-white"
+        >
+
+          <span
+            className="px-4 py-2 rounded-full border border-purple-500
+            transition-all duration-300
+            group-hover:shadow-[0_0_20px_rgba(168,85,247,0.9)]"
+          >
+            Back
+          </span>
+
+          <span
+            className="ml-2 opacity-0 -translate-x-2
+            transition-all duration-300
+            group-hover:opacity-100 group-hover:translate-x-0"
+          >
+            →
+          </span>
+
+        </button>
+
+      </div>
+
+
       <div className="max-w-4xl mx-auto py-20 px-6">
 
         {/* TITLE AREA */}
@@ -130,23 +160,22 @@ export default function PresetPage() {
 
 
             {/* DESCRIPTION */}
-            {/* DESCRIPTION */}
-<div className="mt-8 max-w-md relative overflow-hidden">
+            <div className="mt-8 max-w-md relative overflow-hidden">
 
-  {/* Purple vertical bar */}
-  <div className="absolute left-0 top-0 h-full w-[3px] bg-purple-500"></div>
+              {/* Purple vertical bar */}
+              <div className="absolute left-0 top-0 h-full w-[3px] bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
 
-  {/* Description text */}
-  <p
-    className={`pl-6 text-lg text-gray-300 leading-relaxed
-    transition-all duration-700 ease-out
-    ${showDescription ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"}
-    `}
-  >
-    {preset.description}
-  </p>
+              {/* Description text */}
+              <p
+                className={`pl-6 text-lg text-gray-300 leading-relaxed
+                transition-all duration-700 ease-out
+                ${showDescription ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"}
+                `}
+              >
+                {preset.description}
+              </p>
 
-</div>
+            </div>
 
           </div>
 
