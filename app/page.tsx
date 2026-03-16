@@ -140,14 +140,11 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
 
             {filteredPresets.map((preset: any) => (
-              <PresetCard
-                key={preset.id}
-                id={preset.id}
-                name={preset.name}
-                price={preset.price}
-                image={preset.image}
-              />
-            ))}
+  <PresetCard
+    key={preset.id}
+    preset={preset}
+  />
+))}
 
           </div>
         )}

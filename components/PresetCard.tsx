@@ -1,38 +1,30 @@
-"use client";
+import Image from "next/image"
 
-import Link from "next/link";
+export default function PresetCard({ preset }: any) {
+  return (
+    <div className="bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800">
 
-export default function PresetCard({ name, price, image, id }) {
-return (
+      <div className="relative h-64 w-full">
+        <Image
+          src={preset.afterImage}
+          alt={preset.name}
+          fill
+          className="object-cover"
+        />
+      </div>
 
-<Link href={`/preset/${id}`}>
+      <div className="p-4">
 
-  <div className="group bg-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition duration-300">
+        <h3 className="text-white font-semibold text-lg">
+          {preset.name}
+        </h3>
 
-    <img
-      src={image}
-      alt={name}
-      className="w-full h-56 object-cover group-hover:scale-110 transition duration-500"
-    />
+        {/* Price */}
+        <p className="text-green-400 font-semibold mt-2">
+          {preset.price === 0 ? "Free" : `₹${preset.price}`}
+        </p>
 
-    <div className="p-5">
-
-      <h3 className="text-lg font-semibold mb-1">
-        {name}
-      </h3>
-
-      <p className="text-gray-400 mb-4">
-        {price}
-      </p>
-
-      <button className="w-full bg-white text-black py-2 rounded-lg">
-        View Preset
-      </button>
-
+      </div>
     </div>
-
-  </div>
-
-</Link>
-);
+  )
 }
