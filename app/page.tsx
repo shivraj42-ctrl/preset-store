@@ -112,16 +112,16 @@ focus:ring-2 focus:ring-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.5)]"
 
           {categories.map((cat) => (
            <button
-            key={cat}
-             onClick={() => setCategory(cat)}
-             className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300 ${
-                category === cat
-                ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.9)]"
-                 : "bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 hover:border-purple-500 hover:shadow-[0_0_12px_rgba(168,85,247,0.6)]"
-                  }`}
-                   >
-              {cat}
-            </button>
+  key={cat}
+  onClick={() => setCategory(cat)}
+  className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300 transform ${
+    category === cat
+      ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.9)] scale-105"
+      : "bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 hover:border-purple-500 hover:shadow-[0_0_12px_rgba(168,85,247,0.6)] hover:scale-110"
+  }`}
+>
+  {cat}
+</button>
           ))}
 
         </div>
