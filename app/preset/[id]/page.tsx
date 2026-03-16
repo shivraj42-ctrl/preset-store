@@ -16,6 +16,7 @@ export default function PresetPage() {
 
   const [animateTitle, setAnimateTitle] = useState(false);
   const [showPrice, setShowPrice] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
 
   useEffect(() => {
 
@@ -56,9 +57,14 @@ export default function PresetPage() {
       setShowPrice(true);
     }, 1600);
 
+    const t3 = setTimeout(() => {
+      setShowDescription(true);
+    }, 2200);
+
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
 
   }, []);
@@ -83,11 +89,11 @@ export default function PresetPage() {
         <div className="relative h-32 mb-16">
 
           <div
-  className={`absolute flex flex-col items-center
-  transition-all duration-[1400ms] ease-out
-  ${animateTitle ? "left-6 translate-x-0" : "left-1/2 -translate-x-1/2"}
-  `}
->
+            className={`absolute flex flex-col items-center
+            transition-all duration-[1400ms] ease-out
+            ${animateTitle ? "left-6 translate-x-0" : "left-1/2 -translate-x-1/2"}
+            `}
+          >
 
             {/* TITLE */}
             <h1
@@ -122,6 +128,26 @@ export default function PresetPage() {
               {preset.price === 0 ? "Download Free Preset" : `Buy ₹${preset.price}`}
             </button>
 
+
+            {/* DESCRIPTION */}
+            {/* DESCRIPTION */}
+<div className="mt-8 max-w-md relative overflow-hidden">
+
+  {/* Purple vertical bar */}
+  <div className="absolute left-0 top-0 h-full w-[3px] bg-purple-500"></div>
+
+  {/* Description text */}
+  <p
+    className={`pl-6 text-lg text-gray-300 leading-relaxed
+    transition-all duration-700 ease-out
+    ${showDescription ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"}
+    `}
+  >
+    {preset.description}
+  </p>
+
+</div>
+
           </div>
 
         </div>
@@ -131,14 +157,14 @@ export default function PresetPage() {
         <div className="flex justify-center mb-10">
 
           <img
-         src={preset.afterImage}
-         className={`rounded-xl max-w-md w-full
-         transition-all duration-[1400ms] ease-out
-         hover:scale-110
-         hover:shadow-[0_0_40px_rgba(168,85,247,0.6)]
-         ${animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"}
-          `}
-         />
+            src={preset.afterImage}
+            className={`rounded-xl max-w-md w-full
+            transition-all duration-[1400ms] ease-out
+            hover:scale-110
+            hover:shadow-[0_0_40px_rgba(168,85,247,0.6)]
+            ${animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"}
+            `}
+          />
 
         </div>
 
