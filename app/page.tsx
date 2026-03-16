@@ -69,7 +69,7 @@ export default function Home() {
       <section className="text-center py-32 px-6 bg-gradient-to-b from-black to-zinc-900">
 
         <h1 className="text-6xl font-bold mb-6">
-          Premium Lightroom Classic Presets
+          Premium Lightroom Classic
         </h1>
 
         <p className="text-gray-400 text-xl max-w-xl mx-auto mb-10">
@@ -78,14 +78,7 @@ export default function Home() {
 
         <div className="flex justify-center gap-6">
 
-          <button className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:scale-105 transition">
-            Download Preset
-          </button>
-
-          <button className="border border-white px-8 py-3 rounded-lg hover:bg-white hover:text-black transition">
-            Free Presets
-          </button>
-
+         
         </div>
 
       </section>
