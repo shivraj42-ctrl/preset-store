@@ -1,28 +1,44 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
-variable: "--font-geist-sans",
-subsets: ["latin"],
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-variable: "--font-geist-mono",
-subsets: ["latin"],
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-title: "Preset Store",
-description: "Download professional Lightroom presets",
+  title: "Preset Store",
+  description: "Download professional Lightroom presets",
 };
 
 export default function RootLayout({
-children,
+  children,
 }: {
-children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-return ( <html lang="en"><body className={`${geistSans.variable} ${geistMono.variable}`}> <AuthProvider>{children}</AuthProvider> </body></html>
-);
+  return (
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+
+        {/* Razorpay Checkout Script */}
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
+
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+
+      </body>
+    </html>
+  );
 }

@@ -1,20 +1,47 @@
-"use client";
+"use client"
 
-import ReactCompareImage from "react-compare-image";
+import { useState } from "react"
 
-export default function BeforeAfterSlider() {
-return ( <div className="max-w-4xl mx-auto py-20">
+export default function BeforeAfterSlider({
+  before,
+  after
+}: {
+  before: string
+  after: string
+}) {
 
+  const [position, setPosition] = useState(50)
 
-  <h2 className="text-3xl font-bold text-center mb-10">
-    See The Difference
-  </h2>
+  return (
+    <div className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-xl">
 
-  <ReactCompareImage
-    leftImage="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-    rightImage="https://images.unsplash.com/photo-1492724441997-5dc865305da7"
-  />
+      {/* Before image */}
+      <img
+        src={before}
+        className="w-full block"
+      />
 
-</div>
-);
+      {/* After image */}
+      <div
+        className="absolute top-0 left-0 h-full overflow-hidden"
+        style={{ width: `${position}%` }}
+      >
+        <img
+          src={after}
+          className="w-full block"
+        />
+      </div>
+
+      {/* Slider */}
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={position}
+        onChange={(e) => setPosition(Number(e.target.value))}
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2/3"
+      />
+
+    </div>
+  )
 }

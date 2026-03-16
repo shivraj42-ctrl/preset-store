@@ -30,15 +30,18 @@ export default function Home() {
           ...doc.data(),
         }));
 
+        console.log("Presets loaded:", presetList); // debugging
+
         setPresets(presetList);
 
       } catch (error) {
 
         console.error("Error fetching presets:", error);
 
+      } finally {
+        setLoading(false);
       }
 
-      setLoading(false);
     };
 
     fetchPresets();
@@ -46,10 +49,15 @@ export default function Home() {
   }, []);
 
   const filteredPresets = presets.filter((preset: any) => {
-    return (
-      preset.name?.toLowerCase().includes(search.toLowerCase()) &&
-      (category === "All" || preset.category === category)
-    );
+
+    const matchesSearch =
+      preset.name?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesCategory =
+      category === "All" || preset.category === category;
+
+    return matchesSearch && matchesCategory;
+
   });
 
   return (
@@ -85,14 +93,14 @@ export default function Home() {
       {/* BEFORE AFTER SLIDER */}
       <BeforeAfterSlider />
 
-      {/* PRESETS SECTION */}
+      {/* PRESETS */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
 
         <h2 className="text-3xl font-bold mb-10 text-center">
           Popular Presets
         </h2>
 
-        {/* SEARCH BAR */}
+        {/* SEARCH */}
         <div className="max-w-md mx-auto mb-10">
 
           <input
@@ -105,7 +113,7 @@ export default function Home() {
 
         </div>
 
-        {/* CATEGORY FILTER */}
+        {/* CATEGORY */}
         <div className="flex justify-center gap-4 mb-12 flex-wrap">
 
           {categories.map((cat) => (
@@ -131,7 +139,7 @@ export default function Home() {
           </p>
         )}
 
-        {/* PRESET GRID */}
+        {/* GRID */}
         {!loading && filteredPresets.length === 0 ? (
           <p className="text-center text-gray-400">
             No presets found.
@@ -140,11 +148,11 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
 
             {filteredPresets.map((preset: any) => (
-  <PresetCard
-    key={preset.id}
-    preset={preset}
-  />
-))}
+              <PresetCard
+                key={preset.id}
+                preset={preset}
+              />
+            ))}
 
           </div>
         )}
