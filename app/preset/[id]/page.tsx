@@ -13,6 +13,7 @@ export default function PresetPage() {
 
   const [preset, setPreset] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [animateTitle, setAnimateTitle] = useState(false);
 
   useEffect(() => {
 
@@ -43,6 +44,15 @@ export default function PresetPage() {
 
   }, [id]);
 
+  /* Title animation trigger */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimateTitle(true);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   if (loading) {
     return (
       <div className="text-white text-center mt-20">
@@ -66,14 +76,38 @@ export default function PresetPage() {
 
       <div className="max-w-4xl mx-auto py-20 px-6">
 
-        <h1 className="text-4xl font-bold mb-6">
-          {preset.name}
-        </h1>
+        {/* Animated Title */}
+<div className="relative h-16 mb-12">
 
-        <img
-          src={preset.afterImage}
-          className="rounded-xl mb-6"
-        />
+  <h1
+    className={`absolute left-1/2 -translate-x-1/2 
+    px-6 py-2 text-3xl font-semibold rounded-full border border-purple-500
+    text-purple-300 bg-zinc-900
+    shadow-[0_0_15px_rgba(168,85,247,0.8)]
+    tracking-wider uppercase
+    transition-all duration-1000 ease-out
+    ${animateTitle ? "-translate-x-[260%]" : "-translate-x-1/2"}
+    `}
+  >
+    {preset.name}
+  </h1>
+
+</div>
+
+
+{/* Animated Image */}
+<div className="flex justify-center mb-10 overflow-hidden">
+
+  <img
+    src={preset.afterImage}
+    className={`rounded-xl max-w-md w-full
+    transition-all duration-1000 ease-out
+    ${animateTitle ? "translate-x-[220px]" : "translate-x-0"}
+    `}
+  />
+
+</div>
+
 
         <p className="text-green-400 text-xl mb-6">
           {preset.price === 0 ? "Free Preset" : `₹${preset.price}`}
