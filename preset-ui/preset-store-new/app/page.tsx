@@ -1,9 +1,9 @@
-<<<<<<< HEAD
 "use client";
 
 import Navbar from "@/components/Navbar";
 
 export default function Home() {
+
   const presets = [
     {
       name: "Cinematic Warm",
@@ -32,22 +32,18 @@ export default function Home() {
 
       <Navbar />
 
-      {/* HERO */}
       <section className="text-center py-24 px-6">
+
         <h1 className="text-5xl font-bold mb-6">
           Lightroom Preset Store
         </h1>
 
         <p className="text-gray-400 text-lg mb-8">
-          Download professional Lightroom presets for cheap prices.
+          Download professional Lightroom presets.
         </p>
 
-        <button className="bg-white text-black px-6 py-3 rounded-lg font-semibold">
-          Browse Presets
-        </button>
       </section>
 
-      {/* PRESET GRID */}
       <section className="px-10 pb-20">
 
         <h2 className="text-2xl font-bold mb-8">
@@ -57,9 +53,10 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
           {presets.map((preset, index) => (
+
             <div
               key={index}
-              className="bg-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition"
+              className="bg-zinc-900 rounded-xl overflow-hidden"
             >
 
               <img
@@ -84,6 +81,7 @@ export default function Home() {
               </div>
 
             </div>
+
           ))}
 
         </div>
@@ -92,33 +90,4 @@ export default function Home() {
 
     </div>
   );
-=======
-import PresetCard from "../components/PresetCard"
-
-export default function Home() {
-
-  const presets = [
-    {name:"Moody Portrait",price:49},
-    {name:"Cinematic Dark",price:79},
-    {name:"Bright Wedding",price:99},
-  ]
-
-  return (
-
-    <main className="min-h-screen bg-black text-white p-10">
-
-      <h1 className="text-4xl font-bold mb-10">
-        Lightroom Presets
-      </h1>
-
-      <div className="grid grid-cols-3 gap-6">
-        {presets.map((preset,i)=>(
-          <PresetCard key={i} {...preset}/>
-        ))}
-      </div>
-
-    </main>
-
-  )
->>>>>>> 24fd8379a54a93e57c7f05c9cd61607917ec7c74
 }

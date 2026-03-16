@@ -1,55 +1,32 @@
 "use client";
 
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-<<<<<<< HEAD
-=======
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
->>>>>>> 24fd8379a54a93e57c7f05c9cd61607917ec7c74
-import Link from "next/link";
 
 export default function Navbar() {
 
   const { user } = useAuth();
 
-<<<<<<< HEAD
-  return (
-    <nav className="flex justify-between items-center p-6 border-b border-zinc-800">
-
-      <h1 className="text-2xl font-bold">PresetStore</h1>
-=======
   const handleLogout = async () => {
     await signOut(auth);
   };
 
   return (
-    <nav className="flex justify-between items-center p-6 border-b border-zinc-800">
+    <nav className="flex justify-between items-center p-6 border-b border-zinc-800 bg-black text-white">
 
       <h1 className="text-2xl font-bold">
         PresetStore
       </h1>
->>>>>>> 24fd8379a54a93e57c7f05c9cd61607917ec7c74
 
-      <div className="flex items-center gap-6 text-gray-400">
+      <div className="flex items-center gap-6 text-gray-300">
 
         <Link href="/">Home</Link>
-<<<<<<< HEAD
-        <Link href="/presets">Presets</Link>
-        <Link href="/free">Free</Link>
-
-        {user ? (
-          <img
-            src={user.photoURL}
-            className="w-8 h-8 rounded-full"
-          />
-        ) : (
-          <Link href="/login">Login</Link>
-=======
         <Link href="#">Presets</Link>
         <Link href="#">Free</Link>
 
         {user ? (
-
           <div className="flex items-center gap-4">
 
             <img
@@ -65,18 +42,13 @@ export default function Navbar() {
             </button>
 
           </div>
-
         ) : (
-
           <Link href="/login">
             Login
           </Link>
-
->>>>>>> 24fd8379a54a93e57c7f05c9cd61607917ec7c74
         )}
 
       </div>
-
     </nav>
   );
 }
