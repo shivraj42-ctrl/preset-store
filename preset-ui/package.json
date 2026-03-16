@@ -1,5 +1,5 @@
 {
-  "name": "preset-store",
+  "name": "preset-ui",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,16 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "autoprefixer": "^10.4.27",
-    "cloudinary": "^2.9.0",
-    "firebase": "^12.10.0",
-    "framer-motion": "^12.36.0",
     "next": "16.1.6",
-    "postcss": "^8.5.8",
     "react": "19.2.3",
-    "react-compare-image": "^3.5.14",
-    "react-dom": "19.2.3",
-    "tailwindcss": "^4.2.1"
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -27,6 +20,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }
