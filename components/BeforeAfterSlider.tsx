@@ -2,19 +2,19 @@
 
 import ReactCompareImage from "react-compare-image";
 
-interface Props {
-  before: string;
-  after: string;
-}
+export default function BeforeAfterSlider() {
+return ( <div className="max-w-4xl mx-auto py-20">
 
-export default function BeforeAfterSlider({ before, after }: Props) {
-  return (
-    <div className="w-full h-[400px] rounded-xl overflow-hidden shadow-lg">
-      <ReactCompareImage
-        leftImage={before}
-        rightImage={after}
-        sliderLineWidth={3}
-      />
-    </div>
-  );
+
+  <h2 className="text-3xl font-bold text-center mb-10">
+    See The Difference
+  </h2>
+
+  <ReactCompareImage
+    leftImage="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
+    rightImage="https://images.unsplash.com/photo-1492724441997-5dc865305da7"
+  />
+
+</div>
+);
 }

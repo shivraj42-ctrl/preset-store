@@ -1,32 +1,38 @@
-export default function PresetCard({name, price}) {
-  return (
-    <div className="bg-zinc-900 p-4 rounded-xl">
-      <div className="h-40 bg-zinc-700 rounded"></div>
+"use client";
 
-      <h2 className="mt-3 text-lg font-semibold">
+import Link from "next/link";
+
+export default function PresetCard({ name, price, image, id }) {
+return (
+
+<Link href={`/preset/${id}`}>
+
+  <div className="group bg-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition duration-300">
+
+    <img
+      src={image}
+      alt={name}
+      className="w-full h-56 object-cover group-hover:scale-110 transition duration-500"
+    />
+
+    <div className="p-5">
+
+      <h3 className="text-lg font-semibold mb-1">
         {name}
-      </h2>
+      </h3>
 
-      <p className="text-gray-400">
-        ₹{price}
+      <p className="text-gray-400 mb-4">
+        {price}
       </p>
 
-<<<<<<< HEAD
-      <Link href="/login">
-  <button className="mt-3 bg-white text-black px-4 py-2 rounded">
-    Download
-  </button>
-</Link>
-<Link href="/presets">
-  <button className="mt-8 px-8 py-3 bg-white text-black rounded-lg">
-    Browse Presets
-  </button>
-</Link>
-=======
-      <button className="mt-3 bg-white text-black px-4 py-2 rounded">
-        Download
+      <button className="w-full bg-white text-black py-2 rounded-lg">
+        View Preset
       </button>
->>>>>>> 24fd8379a54a93e57c7f05c9cd61607917ec7c74
+
     </div>
-  )
+
+  </div>
+
+</Link>
+);
 }

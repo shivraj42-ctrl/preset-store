@@ -1,31 +1,56 @@
-<<<<<<< HEAD
 "use client";
 
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import PresetCard from "@/components/PresetCard";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function Home() {
-  const presets = [
-    {
-      name: "Cinematic Warm",
-      price: "$3",
-      image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-    },
-    {
-      name: "Moody Dark",
-      price: "$2",
-      image: "https://images.unsplash.com/photo-1492724441997-5dc865305da7"
-    },
-    {
-      name: "Golden Hour",
-      price: "FREE",
-      image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
-    },
-    {
-      name: "Street Contrast",
-      price: "$4",
-      image: "https://images.unsplash.com/photo-1491553895911-0055eca6402d"
-    }
-  ];
+
+  const [presets, setPresets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+
+  const categories = ["All", "Portrait", "Travel", "Cinematic", "Street"];
+
+  useEffect(() => {
+
+    const fetchPresets = async () => {
+
+      try {
+
+        const querySnapshot = await getDocs(collection(db, "presets"));
+
+        const presetList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setPresets(presetList);
+
+      } catch (error) {
+
+        console.error("Error fetching presets:", error);
+
+      }
+
+      setLoading(false);
+    };
+
+    fetchPresets();
+
+  }, []);
+
+  const filteredPresets = presets.filter((preset: any) => {
+    return (
+      preset.name?.toLowerCase().includes(search.toLowerCase()) &&
+      (category === "All" || preset.category === category)
+    );
+  });
 
   return (
     <div className="bg-black min-h-screen text-white">
@@ -33,92 +58,102 @@ export default function Home() {
       <Navbar />
 
       {/* HERO */}
-      <section className="text-center py-24 px-6">
-        <h1 className="text-5xl font-bold mb-6">
-          Lightroom Preset Store
+      <section className="text-center py-32 px-6 bg-gradient-to-b from-black to-zinc-900">
+
+        <h1 className="text-6xl font-bold mb-6">
+          Professional Lightroom Presets
         </h1>
 
-        <p className="text-gray-400 text-lg mb-8">
-          Download professional Lightroom presets for cheap prices.
+        <p className="text-gray-400 text-xl max-w-xl mx-auto mb-10">
+          Transform your photos instantly using presets used by creators.
         </p>
 
-        <button className="bg-white text-black px-6 py-3 rounded-lg font-semibold">
-          Browse Presets
-        </button>
-      </section>
+        <div className="flex justify-center gap-6">
 
-      {/* PRESET GRID */}
-      <section className="px-10 pb-20">
+          <button className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:scale-105 transition">
+            Download Preset
+          </button>
 
-        <h2 className="text-2xl font-bold mb-8">
-          Popular Presets
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-
-          {presets.map((preset, index) => (
-            <div
-              key={index}
-              className="bg-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition"
-            >
-
-              <img
-                src={preset.image}
-                className="w-full h-48 object-cover"
-              />
-
-              <div className="p-4">
-
-                <h3 className="text-lg font-semibold">
-                  {preset.name}
-                </h3>
-
-                <p className="text-gray-400 mb-4">
-                  {preset.price}
-                </p>
-
-                <button className="bg-white text-black px-4 py-2 rounded-lg w-full">
-                  Download
-                </button>
-
-              </div>
-
-            </div>
-          ))}
+          <button className="border border-white px-8 py-3 rounded-lg hover:bg-white hover:text-black transition">
+            Free Presets
+          </button>
 
         </div>
 
       </section>
 
+      {/* BEFORE AFTER SLIDER */}
+      <BeforeAfterSlider />
+
+      {/* PRESETS SECTION */}
+      <section className="max-w-6xl mx-auto px-6 pb-24">
+
+        <h2 className="text-3xl font-bold mb-10 text-center">
+          Popular Presets
+        </h2>
+
+        {/* SEARCH BAR */}
+        <div className="max-w-md mx-auto mb-10">
+
+          <input
+            type="text"
+            placeholder="Search presets..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-700 text-white focus:outline-none focus:ring-2 focus:ring-white"
+          />
+
+        </div>
+
+        {/* CATEGORY FILTER */}
+        <div className="flex justify-center gap-4 mb-12 flex-wrap">
+
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setCategory(cat)}
+              className={`px-4 py-2 rounded-lg text-sm transition ${
+                category === cat
+                  ? "bg-white text-black"
+                  : "bg-zinc-900 text-white hover:bg-zinc-800"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+
+        </div>
+
+        {/* LOADING */}
+        {loading && (
+          <p className="text-center text-gray-400">
+            Loading presets...
+          </p>
+        )}
+
+        {/* PRESET GRID */}
+        {!loading && filteredPresets.length === 0 ? (
+          <p className="text-center text-gray-400">
+            No presets found.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+
+            {filteredPresets.map((preset: any) => (
+              <PresetCard
+                key={preset.id}
+                id={preset.id}
+                name={preset.name}
+                price={preset.price}
+                image={preset.image}
+              />
+            ))}
+
+          </div>
+        )}
+
+      </section>
+
     </div>
   );
-=======
-import PresetCard from "../components/PresetCard"
-
-export default function Home() {
-
-  const presets = [
-    {name:"Moody Portrait",price:49},
-    {name:"Cinematic Dark",price:79},
-    {name:"Bright Wedding",price:99},
-  ]
-
-  return (
-
-    <main className="min-h-screen bg-black text-white p-10">
-
-      <h1 className="text-4xl font-bold mb-10">
-        Lightroom Presets
-      </h1>
-
-      <div className="grid grid-cols-3 gap-6">
-        {presets.map((preset,i)=>(
-          <PresetCard key={i} {...preset}/>
-        ))}
-      </div>
-
-    </main>
-
-  )
->>>>>>> 24fd8379a54a93e57c7f05c9cd61607917ec7c74
 }
