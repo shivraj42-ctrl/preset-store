@@ -30,8 +30,10 @@ export default function PresetCard({ preset }: any) {
       <div
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-600 transition-all duration-300 cursor-pointer transform hover:-translate-y-2 hover:shadow-2xl"
-      >
+        className="bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 
+transition-all duration-300 cursor-pointer
+hover:border-purple-500
+hover:shadow-[0_0_20px_rgba(168,85,247,0.6)]">
 
         {/* Image container */}
         <div className="relative h-64 w-full overflow-hidden">

@@ -101,7 +101,8 @@ export default function Home() {
             placeholder="Search presets..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-700 text-white focus:outline-none focus:ring-2 focus:ring-white"
+            className="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-700 text-white
+focus:ring-2 focus:ring-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.5)]"
           />
 
         </div>
@@ -110,15 +111,15 @@ export default function Home() {
         <div className="flex justify-center gap-4 mb-12 flex-wrap">
 
           {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-lg text-sm transition ${
+           <button
+            key={cat}
+             onClick={() => setCategory(cat)}
+             className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300 ${
                 category === cat
-                  ? "bg-white text-black"
-                  : "bg-zinc-900 text-white hover:bg-zinc-800"
-              }`}
-            >
+                ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.9)]"
+                 : "bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 hover:border-purple-500 hover:shadow-[0_0_12px_rgba(168,85,247,0.6)]"
+                  }`}
+                   >
               {cat}
             </button>
           ))}
