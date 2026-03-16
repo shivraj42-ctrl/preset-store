@@ -69,7 +69,7 @@ export default function Home() {
       <section className="text-center py-32 px-6 bg-gradient-to-b from-black to-zinc-900">
 
         <h1 className="text-6xl font-bold mb-6">
-          Professional Lightroom Presets
+          Premium Lightroom Classic Presets
         </h1>
 
         <p className="text-gray-400 text-xl max-w-xl mx-auto mb-10">

@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Preset Store",
-  description: "Download professional Lightroom presets",
+  title: "xmpStore",
+  description: "professional Lightroom presets",
 };
 
 export default function RootLayout({
