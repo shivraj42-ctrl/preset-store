@@ -13,7 +13,9 @@ export default function PresetPage() {
 
   const [preset, setPreset] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
   const [animateTitle, setAnimateTitle] = useState(false);
+  const [showPrice, setShowPrice] = useState(false);
 
   useEffect(() => {
 
@@ -29,8 +31,6 @@ export default function PresetPage() {
             id: docSnap.id,
             ...docSnap.data(),
           });
-        } else {
-          console.log("Preset not found");
         }
 
       } catch (error) {
@@ -44,29 +44,32 @@ export default function PresetPage() {
 
   }, [id]);
 
-  /* Title animation trigger */
+
+  /* animation timeline */
   useEffect(() => {
-    const timer = setTimeout(() => {
+
+    const t1 = setTimeout(() => {
       setAnimateTitle(true);
     }, 200);
 
-    return () => clearTimeout(timer);
+    const t2 = setTimeout(() => {
+      setShowPrice(true);
+    }, 1600);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+
   }, []);
 
+
   if (loading) {
-    return (
-      <div className="text-white text-center mt-20">
-        Loading preset...
-      </div>
-    );
+    return <div className="text-white text-center mt-20">Loading preset...</div>;
   }
 
   if (!preset) {
-    return (
-      <div className="text-white text-center mt-20">
-        Preset not found
-      </div>
-    );
+    return <div className="text-white text-center mt-20">Preset not found</div>;
   }
 
   return (
@@ -76,52 +79,68 @@ export default function PresetPage() {
 
       <div className="max-w-4xl mx-auto py-20 px-6">
 
-        {/* Animated Title */}
-<div className="relative h-16 mb-12">
+        {/* TITLE AREA */}
+        <div className="relative h-32 mb-16">
 
-  <h1
-    className={`absolute left-1/2 -translate-x-1/2 
-    px-6 py-2 text-3xl font-semibold rounded-full border border-purple-500
-    text-purple-300 bg-zinc-900
-    shadow-[0_0_15px_rgba(168,85,247,0.8)]
-    tracking-wider uppercase
-    transition-all duration-1000 ease-out
-    ${animateTitle ? "-translate-x-[260%]" : "-translate-x-1/2"}
-    `}
-  >
-    {preset.name}
-  </h1>
+          <div
+  className={`absolute flex flex-col items-center
+  transition-all duration-[1400ms] ease-out
+  ${animateTitle ? "left-6 translate-x-0" : "left-1/2 -translate-x-1/2"}
+  `}
+>
 
-</div>
-
-
-{/* Animated Image */}
-<div className="flex justify-center mb-10 overflow-hidden">
-
-  <img
-    src={preset.afterImage}
-    className={`rounded-xl max-w-md w-full
-    transition-all duration-1000 ease-out
-    ${animateTitle ? "translate-x-[220px]" : "translate-x-0"}
-    `}
-  />
-
-</div>
+            {/* TITLE */}
+            <h1
+              className="px-6 py-2 text-3xl font-semibold rounded-full border border-purple-500
+              text-purple-300 bg-zinc-900
+              shadow-[0_0_15px_rgba(168,85,247,0.8)]
+              tracking-wider uppercase"
+            >
+              {preset.name}
+            </h1>
 
 
-        <p className="text-green-400 text-xl mb-6">
-          {preset.price === 0 ? "Free Preset" : `₹${preset.price}`}
-        </p>
+            {/* PRICE BUTTON */}
+            <button
+              onClick={() => {
 
-        {preset.price === 0 && preset.downloadUrl && (
-          <a
-            href={preset.downloadUrl}
-            target="_blank"
-            className="bg-white text-black px-6 py-3 rounded-lg font-semibold"
-          >
-            Download Preset
-          </a>
-        )}
+                if (preset.price === 0 && preset.downloadUrl) {
+                  window.open(preset.downloadUrl, "_blank");
+                } else {
+                  alert("Payment integration coming soon");
+                }
+
+              }}
+              className={`mt-4 px-6 py-3 rounded-full font-semibold
+              bg-purple-600 text-white
+              shadow-[0_0_15px_rgba(168,85,247,0.8)]
+              hover:shadow-[0_0_35px_rgba(168,85,247,1)]
+              transition-all duration-700 ease-out
+              ${showPrice ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0"}
+              `}
+            >
+              {preset.price === 0 ? "Download Free Preset" : `Buy ₹${preset.price}`}
+            </button>
+
+          </div>
+
+        </div>
+
+
+        {/* IMAGE */}
+        <div className="flex justify-center mb-10">
+
+          <img
+         src={preset.afterImage}
+         className={`rounded-xl max-w-md w-full
+         transition-all duration-[1400ms] ease-out
+         hover:scale-110
+         hover:shadow-[0_0_40px_rgba(168,85,247,0.6)]
+         ${animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"}
+          `}
+         />
+
+        </div>
 
       </div>
 
