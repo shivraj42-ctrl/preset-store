@@ -6,17 +6,37 @@ import { auth } from "@/lib/firebase";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
 
 const { user } = useAuth();
 const [open, setOpen] = useState(false);
 const menuRef = useRef<HTMLDivElement>(null);
+const [isAdmin, setIsAdmin] = useState(false);
+const router = useRouter();
 
 const handleLogout = async () => {
   await signOut(auth);
   setOpen(false);
 };
+
+/* ✅ FETCH ADMIN STATUS (NEW) */
+useEffect(() => {
+  const fetchAdmin = async () => {
+    if (!user) return;
+
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (snap.exists()) {
+      setIsAdmin(snap.data().isAdmin === true);
+    }
+  };
+
+  fetchAdmin();
+}, [user]);
 
 /* CLOSE DROPDOWN WHEN CLICKING OUTSIDE */
 useEffect(() => {
@@ -130,6 +150,16 @@ open
 </p>
 
 </div>
+
+{/* ✅ ADMIN BUTTON (NEW) */}
+{isAdmin && (
+<button
+onClick={() => router.push("/admin")}
+className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm"
+>
+Admin Panel
+</button>
+)}
 
 <button className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm">
 Manage Account

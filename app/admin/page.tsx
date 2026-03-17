@@ -3,36 +3,119 @@
 import AdminLayout from "@/components/AdminLayout";
 import { motion } from "framer-motion";
 
+/* ✅ ADDED IMPORTS */
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
+
 export default function AdminPage() {
+
+  /* ✅ ADDED AUTH LOGIC */
+  const { user } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) {
+        router.push("/");
+        return;
+      }
+
+      const snap = await getDoc(doc(db, "users", user.uid));
+
+      if (!snap.exists() || !snap.data().isAdmin) {
+        router.push("/");
+      } else {
+        setLoading(false);
+      }
+    };
+
+    checkAdmin();
+  }, [user]);
+
+  /* ✅ PREVENT FLASH */
+  if (loading) {
+    return <div className="p-10 text-white">Checking access...</div>;
+  }
+
   return (
     <AdminLayout>
 
       <div className="max-w-7xl mx-auto space-y-8">
 
+        {/* 🔙 BACK BUTTON (ADDED ONLY THIS) */}
+        <motion.button
+          onClick={() => router.push("/")}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          whileHover={{ scale: 1.05, x: -3 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 260, damping: 18 }}
+          className="group relative flex items-center gap-2 px-4 py-2 rounded-lg 
+          bg-white/5 border border-white/10 backdrop-blur-md
+          hover:bg-white/10 hover:border-white/20
+          shadow-[0_0_10px_rgba(255,255,255,0.05)]"
+        >
+          <span className="text-sm text-gray-300 group-hover:text-white transition">
+            ← Back to Home
+          </span>
+
+          <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none
+            bg-[radial-gradient(circle_at_left,rgba(255,255,255,0.15),transparent_70%)]"
+          />
+        </motion.button>
+
         {/* HEADER */}
         <h1 className="text-lg font-medium">Dashboard Overview</h1>
 
-        {/* STATS */}
+        {/* 🔥 STATS */}
         <div className="grid grid-cols-4 gap-5">
+
           {[
-            { title: "Courses", value: "24", sub: "3 Active" },
-            { title: "Lessons", value: "220", sub: "20 Active" },
-            { title: "Students", value: "67", sub: "60 Enrolled" },
-            { title: "Revenue", value: "$17", sub: "This Month" },
+            { title: "Preset Sold", value: "0"},
+            { title: "Uploads", value: "4"},
+            { title: "Students", value: "67"},
+            { title: "Revenue", value: "$17"},
           ].map((item, i) => (
+
             <motion.div
               key={i}
-              whileHover={{ y: -5 }}
-              className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-md transition"
+              initial={{ scale: 1 }}
+              whileHover={{
+                scale: 1.06,
+                y: -10,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 18,
+              }}
+              className="group relative bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-md overflow-hidden"
             >
+
+              {/* ✨ GLOW */}
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none
+                bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.25),transparent_70%)]"
+              />
+
+              {/* ✨ BORDER GLOW */}
+              <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-white/30 transition duration-300" />
+
+              {/* CONTENT */}
               <p className="text-xs text-gray-400">{item.title}</p>
               <h2 className="text-xl font-semibold mt-1">{item.value}</h2>
               <p className="text-xs text-gray-500 mt-1">{item.sub}</p>
+
             </motion.div>
+
           ))}
+
         </div>
 
-        {/* MAIN GRID */}
+        {/* 🔥 MAIN GRID */}
         <div className="grid grid-cols-3 gap-5">
 
           {/* 📊 CHART */}
@@ -60,7 +143,7 @@ export default function AdminPage() {
 
         </div>
 
-        {/* BOTTOM GRID */}
+        {/* 🔥 BOTTOM GRID */}
         <div className="grid grid-cols-3 gap-5">
 
           {/* 📦 UPLOAD */}

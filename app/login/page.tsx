@@ -5,6 +5,8 @@ import { login, googleLogin, resetPassword } from "@/lib/auth";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,9 +17,27 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
 
+  // ✅ ADD THIS FUNCTION (NEW)
+  const createUserIfNotExists = async (user: any) => {
+    const docRef = doc(db, "users", user.uid);
+    const snap = await getDoc(docRef);
+
+    if (!snap.exists()) {
+      await setDoc(docRef, {
+        uid: user.uid,
+        email: user.email,
+        isAdmin: false, // 👈 default normal user
+        createdAt: new Date()
+      });
+    }
+  };
+
   const handleLogin = async () => {
   try {
-    await login(email, password);
+    const result = await login(email, password); // ✅ CHANGED (store result)
+
+    // ✅ ADD THIS LINE
+    await createUserIfNotExists(result.user);
 
     // ✅ redirect after login
     router.push(redirect || "/");
@@ -35,7 +55,10 @@ export default function LoginPage() {
 
   const handleGoogle = async () => {
   try {
-    await googleLogin();
+    const result = await googleLogin(); // ✅ CHANGED
+
+    // ✅ ADD THIS LINE
+    await createUserIfNotExists(result.user);
 
     // ✅ redirect after login
     router.push(redirect || "/");
