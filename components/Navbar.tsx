@@ -87,16 +87,28 @@ Social
 <div className="relative flex items-center" ref={menuRef}>
 
 {/* PROFILE IMAGE */}
-{user.photoURL && (
-<Image
-src={user.photoURL}
-alt="profile"
-width={36}
-height={36}
-className="rounded-full cursor-pointer border border-zinc-700 transition hover:border-purple-500 hover:shadow-[0_0_10px_rgba(168,85,247,0.8)]"
-onClick={() => setOpen(!open)}
-/>
-)}
+<div
+  onClick={() => setOpen(!open)}
+  className="w-9 h-9 rounded-full overflow-hidden cursor-pointer border border-zinc-700 
+  flex items-center justify-center bg-zinc-800 text-sm font-semibold
+  hover:border-purple-500 hover:shadow-[0_0_10px_rgba(168,85,247,0.8)] transition"
+>
+
+  {user.photoURL ? (
+    <Image
+      src={user.photoURL}
+      alt="profile"
+      width={36}
+      height={36}
+      className="object-cover w-full h-full"
+    />
+  ) : (
+    <span>
+      {user.email?.[0]?.toUpperCase() || "U"}
+    </span>
+  )}
+
+</div>
 
 {/* DROPDOWN */}
 <div
