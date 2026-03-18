@@ -20,9 +20,14 @@ export default function PresetPage() {
   const [animateTitle, setAnimateTitle] = useState(false);
   const [showPrice, setShowPrice] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
+
   const { checkAuth } = useProtectedAction();
   const { user } = useAuth();
+
   const [isPurchased, setIsPurchased] = useState(false);
+
+  // ✅ ADDED (popup state)
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const fetchPreset = async () => {
@@ -53,9 +58,7 @@ export default function PresetPage() {
       const res = await fetch(`/api/check-purchase?userId=${user.uid}&presetId=${id}`);
       const data = await res.json();
 
-      if (data.purchased) {
-        setIsPurchased(true);
-      }
+      setIsPurchased(data.purchased);
     };
 
     checkPurchase();
@@ -86,26 +89,17 @@ export default function PresetPage() {
 
       <Navbar />
 
-      {/* BACK BUTTON */}
       <div className="max-w-6xl mx-auto px-6 pt-8">
 
         <button
-          onClick={() => router.back()} // ✅ FIXED
+          onClick={() => router.back()}
           className="group flex items-center text-gray-300 text-sm transition-all duration-300 hover:text-white"
         >
-          <span
-            className="px-4 py-2 rounded-full border border-purple-500
-            transition-all duration-300
-            group-hover:shadow-[0_0_20px_rgba(168,85,247,0.9)]"
-          >
+          <span className="px-4 py-2 rounded-full border border-purple-500 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.9)]">
             Back
           </span>
 
-          <span
-            className="ml-2 opacity-0 -translate-x-2
-            transition-all duration-300
-            group-hover:opacity-100 group-hover:translate-x-0"
-          >
+          <span className="ml-2 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
             →
           </span>
         </button>
@@ -114,32 +108,47 @@ export default function PresetPage() {
 
       <div className="max-w-4xl mx-auto py-20 px-6">
 
-        {/* TITLE AREA */}
         <div className="relative h-32 mb-16">
 
-          <div
-            className={`absolute flex flex-col items-center
-            transition-all duration-[1400ms] ease-out
-            ${animateTitle ? "left-6 translate-x-0" : "left-1/2 -translate-x-1/2"}`}
-          >
+          <div className={`absolute flex flex-col items-center transition-all duration-[1400ms] ease-out ${animateTitle ? "left-6 translate-x-0" : "left-1/2 -translate-x-1/2"}`}>
 
             <h1 className="px-6 py-2 text-3xl font-semibold rounded-full border border-purple-500 text-purple-300 bg-zinc-900 shadow-[0_0_15px_rgba(168,85,247,0.8)] tracking-wider uppercase">
               {preset.name}
             </h1>
 
-            {/* PRICE BUTTON */}
             <button
               onClick={async () => {
 
                 if (!checkAuth()) return;
 
-                if (isPurchased && preset.downloadUrl) {
-                  window.open(preset.downloadUrl, "_blank");
+                // ✅ PREVENT DOUBLE PAYMENT
+                if (isPurchased) {
+                  if (preset.downloadUrl) {
+                    const response = await fetch(preset.downloadUrl);
+const blob = await response.blob();
+
+const url = window.URL.createObjectURL(blob);
+
+const link = document.createElement("a");
+link.href = url;
+link.download = preset.name || "preset";
+
+document.body.appendChild(link);
+link.click();
+
+document.body.removeChild(link);
+window.URL.revokeObjectURL(url);
+                  }
                   return;
                 }
 
                 if (preset.price === 0 && preset.downloadUrl) {
-                  window.open(preset.downloadUrl, "_blank");
+                  const link = document.createElement("a");
+                  link.href = preset.downloadUrl;
+                  link.download = preset.name || "preset";
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
                   return;
                 }
 
@@ -173,18 +182,29 @@ export default function PresetPage() {
                             ...response,
                             userId: user?.uid,
                             presetId: preset.id,
-                            amount: preset.price,
                           }),
                         });
 
                         const data = await verifyRes.json();
 
                         if (data.success) {
-                          alert("Payment successful 🎉");
+
+                          // ❌ REMOVED alert
+                          // alert("Payment successful 🎉");
+
+                          // ✅ ADDED
+                          setIsPurchased(true);
+                          setShowSuccess(true);
 
                           if (preset.downloadUrl) {
-                            window.open(preset.downloadUrl, "_blank");
+                            const link = document.createElement("a");
+                            link.href = preset.downloadUrl;
+                            link.download = preset.name || "preset";
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
                           }
+
                         } else {
                           alert("Payment verification failed");
                         }
@@ -206,12 +226,7 @@ export default function PresetPage() {
                 }
 
               }}
-              className={`mt-4 px-6 py-3 rounded-full font-semibold
-              bg-purple-600 text-white
-              shadow-[0_0_15px_rgba(168,85,247,0.8)]
-              hover:shadow-[0_0_35px_rgba(168,85,247,1)]
-              transition-all duration-700 ease-out
-              ${showPrice ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0"}`}
+              className={`mt-4 px-6 py-3 rounded-full font-semibold bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.8)] hover:shadow-[0_0_35px_rgba(168,85,247,1)] transition-all duration-700 ease-out ${showPrice ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0"}`}
             >
               {preset.price === 0
                 ? "Download Free Preset"
@@ -220,7 +235,6 @@ export default function PresetPage() {
                 : `Buy ₹${preset.price}`}
             </button>
 
-            {/* DESCRIPTION */}
             <div className="mt-8 max-w-md relative overflow-hidden">
               <div className="absolute left-0 top-0 h-full w-[3px] bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
 
@@ -233,14 +247,36 @@ export default function PresetPage() {
 
         </div>
 
-        {/* IMAGE */}
         <div className="flex justify-center mb-10">
           <img
             src={preset.afterImage}
-            className={`rounded-xl max-w-md w-full transition-all duration-[1400ms] ease-out hover:scale-110 hover:shadow-[0_0_40px_rgba(168,85,247,0.6)]
-            ${animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"}`}
+            className={`rounded-xl max-w-md w-full transition-all duration-[1400ms] ease-out hover:scale-110 hover:shadow-[0_0_40px_rgba(168,85,247,0.6)] ${animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"}`}
           />
         </div>
+
+        {/* ✅ ADDED POPUP */}
+        {showSuccess && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+            <div className="bg-zinc-900 border border-purple-500 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(168,85,247,0.6)]">
+              
+              <h2 className="text-xl font-semibold text-purple-300 mb-2">
+                Payment Successful 
+              </h2>
+
+              <p className="text-gray-400 mb-4">
+                Your preset is ready to download
+              </p>
+
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="px-5 py-2 bg-purple-600 rounded-lg hover:bg-purple-700"
+              >
+                OK
+              </button>
+
+            </div>
+          </div>
+        )}
 
       </div>
 

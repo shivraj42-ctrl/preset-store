@@ -33,19 +33,17 @@ export default function LoginPage() {
   };
 
   const handleLogin = async () => {
-  try {
-    const result = await login(email, password); // ✅ CHANGED (store result)
+    try {
+      const result = await login(email, password);
 
-    // ✅ ADD THIS LINE
-    await createUserIfNotExists(result.user);
+      await createUserIfNotExists(result.user);
 
-    // ✅ redirect after login
-    router.push(redirect || "/");
+      router.push(redirect || "/");
 
-  } catch (err: any) {
-    alert(err.message);
-  }
-};
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
 
   const handleReset = async () => {
     if (!email) return alert("Enter email first");
@@ -54,19 +52,17 @@ export default function LoginPage() {
   };
 
   const handleGoogle = async () => {
-  try {
-    const result = await googleLogin(); // ✅ CHANGED
+    try {
+      const result = await googleLogin();
 
-    // ✅ ADD THIS LINE
-    await createUserIfNotExists(result.user);
+      await createUserIfNotExists(result.user);
 
-    // ✅ redirect after login
-    router.push(redirect || "/");
+      router.push(redirect || "/");
 
-  } catch {
-    alert("Google login failed");
-  }
-};
+    } catch {
+      alert("Google login failed");
+    }
+  };
 
   return (
     <div className="h-screen flex items-center justify-center bg-neutral-100">
@@ -82,7 +78,7 @@ export default function LoginPage() {
         <input
           type="email"
           placeholder="Email address"
-          className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full border border-gray-300 p-3 rounded-lg text-black placeholder-gray-400 caret-black focus:outline-none focus:ring-2 focus:ring-purple-500"
           onChange={(e) => setEmail(e.target.value)}
         />
 
@@ -91,7 +87,7 @@ export default function LoginPage() {
           <input
             type={show ? "text" : "password"}
             placeholder="Password"
-            className="w-full border border-gray-300 p-3 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border border-gray-300 p-3 rounded-lg pr-10 text-black placeholder-gray-400 caret-black focus:outline-none focus:ring-2 focus:ring-purple-500"
             onChange={(e) => setPassword(e.target.value)}
           />
 
