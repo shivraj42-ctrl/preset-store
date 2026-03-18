@@ -25,10 +25,27 @@ export default function PresetPage() {
   const { user } = useAuth();
 
   const [isPurchased, setIsPurchased] = useState(false);
-
-  // ✅ ADDED (popup state)
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // ✅ FIXED DOWNLOAD FUNCTION (FINAL)
+  const handleDownloadFile = () => {
+    console.log("DOWNLOAD CLICKED", preset);
+
+    if (!preset?.downloadUrl) {
+      alert("No download available");
+      return;
+    }
+
+    // 🔥 FORCE DOWNLOAD (BEST METHOD)
+    const link = document.createElement("a");
+    link.href = preset.downloadUrl;
+    link.setAttribute("download", preset.name || "preset");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // 🔥 FETCH PRESET
   useEffect(() => {
     const fetchPreset = async () => {
       try {
@@ -36,10 +53,14 @@ export default function PresetPage() {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setPreset({
+          const data = {
             id: docSnap.id,
             ...docSnap.data(),
-          });
+          };
+
+          console.log("PRESET DATA:", data); // DEBUG
+
+          setPreset(data);
         }
       } catch (error) {
         console.error("Error loading preset:", error);
@@ -51,6 +72,7 @@ export default function PresetPage() {
     if (id) fetchPreset();
   }, [id]);
 
+  // 🔥 CHECK PURCHASE
   useEffect(() => {
     const checkPurchase = async () => {
       if (!user) return;
@@ -64,6 +86,7 @@ export default function PresetPage() {
     checkPurchase();
   }, [user, id]);
 
+  // 🔥 ANIMATIONS
   useEffect(() => {
     const t1 = setTimeout(() => setAnimateTitle(true), 200);
     const t2 = setTimeout(() => setShowPrice(true), 1600);
@@ -89,8 +112,8 @@ export default function PresetPage() {
 
       <Navbar />
 
+      {/* BACK BUTTON */}
       <div className="max-w-6xl mx-auto px-6 pt-8">
-
         <button
           onClick={() => router.back()}
           className="group flex items-center text-gray-300 text-sm transition-all duration-300 hover:text-white"
@@ -103,7 +126,6 @@ export default function PresetPage() {
             →
           </span>
         </button>
-
       </div>
 
       <div className="max-w-4xl mx-auto py-20 px-6">
@@ -116,42 +138,25 @@ export default function PresetPage() {
               {preset.name}
             </h1>
 
+            {/* 🔥 MAIN BUTTON */}
             <button
               onClick={async () => {
 
                 if (!checkAuth()) return;
 
-                // ✅ PREVENT DOUBLE PAYMENT
+                // ✅ ALREADY PURCHASED
                 if (isPurchased) {
-                  if (preset.downloadUrl) {
-                    const response = await fetch(preset.downloadUrl);
-const blob = await response.blob();
-
-const url = window.URL.createObjectURL(blob);
-
-const link = document.createElement("a");
-link.href = url;
-link.download = preset.name || "preset";
-
-document.body.appendChild(link);
-link.click();
-
-document.body.removeChild(link);
-window.URL.revokeObjectURL(url);
-                  }
+                  handleDownloadFile();
                   return;
                 }
 
-                if (preset.price === 0 && preset.downloadUrl) {
-                  const link = document.createElement("a");
-                  link.href = preset.downloadUrl;
-                  link.download = preset.name || "preset";
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
+                // ✅ FREE PRESET
+                if (preset.price === 0) {
+                  handleDownloadFile();
                   return;
                 }
 
+                // ✅ PAYMENT FLOW
                 try {
                   const res = await fetch("/api/create-order", {
                     method: "POST",
@@ -188,23 +193,8 @@ window.URL.revokeObjectURL(url);
                         const data = await verifyRes.json();
 
                         if (data.success) {
-
-                          // ❌ REMOVED alert
-                          // alert("Payment successful 🎉");
-
-                          // ✅ ADDED
                           setIsPurchased(true);
                           setShowSuccess(true);
-
-                          if (preset.downloadUrl) {
-                            const link = document.createElement("a");
-                            link.href = preset.downloadUrl;
-                            link.download = preset.name || "preset";
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                          }
-
                         } else {
                           alert("Payment verification failed");
                         }
@@ -235,6 +225,7 @@ window.URL.revokeObjectURL(url);
                 : `Buy ₹${preset.price}`}
             </button>
 
+            {/* DESCRIPTION */}
             <div className="mt-8 max-w-md relative overflow-hidden">
               <div className="absolute left-0 top-0 h-full w-[3px] bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
 
@@ -247,6 +238,7 @@ window.URL.revokeObjectURL(url);
 
         </div>
 
+        {/* IMAGE */}
         <div className="flex justify-center mb-10">
           <img
             src={preset.afterImage}
@@ -254,7 +246,7 @@ window.URL.revokeObjectURL(url);
           />
         </div>
 
-        {/* ✅ ADDED POPUP */}
+        {/* SUCCESS POPUP */}
         {showSuccess && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
             <div className="bg-zinc-900 border border-purple-500 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(168,85,247,0.6)]">
@@ -264,7 +256,7 @@ window.URL.revokeObjectURL(url);
               </h2>
 
               <p className="text-gray-400 mb-4">
-                Your preset is ready to download
+                Click download to get your preset
               </p>
 
               <button
