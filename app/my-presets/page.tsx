@@ -1,40 +1,114 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { db } from "@/lib/firebase"
-import { collection, getDocs } from "firebase/firestore"
-import { useAuth } from "@/context/AuthContext"
+import { useEffect, useState } from "react";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import { useAuth } from "@/context/AuthContext";
+import Navbar from "@/components/Navbar";
 
 export default function MyPresets() {
+  const { user } = useAuth();
 
- const { user } = useAuth()
- const [presets,setPresets] = useState([])
+  /* ✅ CHANGED: single state */
+  const [owned, setOwned] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
- useEffect(()=>{
+  // 🔥 FETCH EVERYTHING
+  useEffect(() => {
+    if (!user) return;
 
-   const fetchPresets = async () => {
+    const fetchData = async () => {
+      try {
+        const q = query(
+          collection(db, "user_presets"),
+          where("userId", "==", user.uid)
+        );
 
-     const snapshot = await getDocs(
-       collection(db,"users",user.uid,"purchases")
-     )
+        const snapshot = await getDocs(q);
+        const raw = snapshot.docs.map(doc => doc.data());
 
-     setPresets(snapshot.docs.map(doc=>doc.data()))
-   }
+        // 🔥 FETCH FULL PRESET DETAILS
+        const fullData = await Promise.all(
+          raw.map(async (item) => {
+            const ref = doc(db, "presets", item.presetId);
+            const snap = await getDoc(ref);
 
-   if(user) fetchPresets()
+            return {
+              ...item,
+              ...(snap.exists() ? snap.data() : {}),
+            };
+          })
+        );
 
- },[user])
+        /* ✅ ADDED: REMOVE DUPLICATES */
+        const unique = Array.from(
+          new Map(fullData.map(p => [p.presetId, p])).values()
+        );
 
- return (
-   <div>
-     <h1>My Presets</h1>
+        setOwned(unique);
 
-     {presets.map((preset)=>(
-       <a href={preset.downloadURL} key={preset.id}>
-         Download
-       </a>
-     ))}
+      } catch (err) {
+        console.log(err);
+      }
 
-   </div>
- )
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [user]);
+
+  if (loading) {
+    return <div className="text-white text-center mt-20">Loading...</div>;
+  }
+
+  return (
+    <div className="bg-black min-h-screen text-white">
+
+      <Navbar />
+
+      <div className="max-w-6xl mx-auto px-6 py-10">
+
+        <h1 className="text-3xl mb-8">My Presets</h1>
+
+        {/* ✅ SINGLE PREMIUM SECTION */}
+        <h2 className="text-xl mb-4 text-purple-400">Owned</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {owned.map((p, i) => (
+            <div
+              key={i}
+              className="bg-zinc-900 p-4 rounded-xl border border-purple-500 shadow hover:shadow-purple-500/40 hover:scale-105 transition"
+            >
+              <img
+                src={p.afterImage}
+                className="rounded-lg mb-3 h-48 w-full object-cover"
+              />
+
+              <h3 className="text-lg font-semibold">{p.name}</h3>
+
+              <p className="text-sm text-gray-400 mb-3">
+                {p.price === 0 ? "FREE" : `₹${p.price}`}
+              </p>
+
+              <button
+                onClick={() => window.open(p.downloadUrl)}
+                className="w-full bg-green-600 py-2 rounded-lg hover:bg-green-700"
+              >
+                Download
+              </button>
+            </div>
+          ))}
+        </div>
+
+      </div>
+
+    </div>
+  );
 }

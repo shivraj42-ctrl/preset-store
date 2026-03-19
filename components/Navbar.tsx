@@ -9,6 +9,10 @@ import { useState, useRef, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { getCart } from "@/lib/cart";
+
+/* ✅ NEW: IMPORT DRAWER */
+import CartDrawer from "@/components/CartDrawer";
 
 export default function Navbar() {
 
@@ -18,12 +22,24 @@ const menuRef = useRef<HTMLDivElement>(null);
 const [isAdmin, setIsAdmin] = useState(false);
 const router = useRouter();
 
+/* ✅ EXISTING */
+const [cartCount, setCartCount] = useState(0);
+
+/* ✅ ADDED */
+const [animateCart, setAnimateCart] = useState(false);
+
+/* ✅ NEW: FORCE RELOAD KEY */
+const [refreshKey, setRefreshKey] = useState(0);
+
+/* ✅ NEW: CART DRAWER STATE */
+const [cartOpen, setCartOpen] = useState(false);
+
 const handleLogout = async () => {
   await signOut(auth);
   setOpen(false);
 };
 
-/* ✅ FETCH ADMIN STATUS (NEW) */
+/* ✅ FETCH ADMIN STATUS */
 useEffect(() => {
   const fetchAdmin = async () => {
     if (!user) return;
@@ -38,7 +54,7 @@ useEffect(() => {
   fetchAdmin();
 }, [user]);
 
-/* CLOSE DROPDOWN WHEN CLICKING OUTSIDE */
+/* CLOSE DROPDOWN */
 useEffect(() => {
 
 function handleClickOutside(event: any) {
@@ -51,6 +67,42 @@ document.addEventListener("mousedown", handleClickOutside);
 return () => document.removeEventListener("mousedown", handleClickOutside);
 
 }, []);
+
+/* ✅ CART COUNT */
+useEffect(() => {
+  const updateCart = () => {
+    const cart = getCart(user?.uid);
+    setCartCount(cart.length);
+  };
+
+  updateCart();
+
+  window.addEventListener("storage", updateCart);
+  window.addEventListener("cart:update", updateCart);
+
+  return () => {
+    window.removeEventListener("storage", updateCart);
+    window.removeEventListener("cart:update", updateCart);
+  };
+}, [user, refreshKey]);
+
+/* ✅ FORCE UPDATE ON LOGIN/LOGOUT */
+useEffect(() => {
+  setRefreshKey(prev => prev + 1);
+}, [user]);
+
+/* ✅ ANIMATION */
+useEffect(() => {
+  if (cartCount === 0) return;
+
+  setAnimateCart(true);
+
+  const timer = setTimeout(() => {
+    setAnimateCart(false);
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [cartCount]);
 
 return (
 
@@ -79,17 +131,11 @@ return (
 {/* NAV LINKS */}
 <div className="flex items-center gap-8 text-gray-400">
 
-<Link 
-href="/" 
-className="transition hover:text-purple-400 hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.9)]"
->
+<Link href="/" className="transition hover:text-purple-400 hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.9)]">
 Home
 </Link>
 
-<Link 
-href="/contact" 
-className="transition hover:text-purple-400 hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.9)]"
->
+<Link href="/contact" className="transition hover:text-purple-400 hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.9)]">
 Contact
 </Link>
 
@@ -101,6 +147,31 @@ className="transition hover:text-purple-400 hover:drop-shadow-[0_0_6px_rgba(168,
 >
 Social
 </a>
+
+{/* ✅ CART ICON */}
+<div
+  onClick={() => setCartOpen(true)} /* 🔥 CHANGED */
+  className="relative cursor-pointer"
+  data-cart-icon
+>
+  <span
+    className={`text-2xl transition-transform duration-300 ${
+      animateCart ? "scale-125" : "scale-100"
+    }`}
+  >
+    🛒
+  </span>
+
+  {cartCount > 0 && (
+    <span
+      className={`absolute -top-2 -right-2 bg-red-500 text-xs px-2 py-0.5 rounded-full transition-all duration-300 ${
+        animateCart ? "scale-125" : "scale-100"
+      }`}
+    >
+      {cartCount}
+    </span>
+  )}
+</div>
 
 {user ? (
 
@@ -151,12 +222,8 @@ open
 
 </div>
 
-{/* ✅ ADMIN BUTTON (NEW) */}
 {isAdmin && (
-<button
-onClick={() => router.push("/admin")}
-className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm"
->
+<button onClick={() => router.push("/admin")} className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm">
 Admin Panel
 </button>
 )}
@@ -165,14 +232,11 @@ Admin Panel
 Manage Account
 </button>
 
-<button className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm">
+<div onClick={() => router.push("/my-presets")} className="cursor-pointer hover:bg-white/10 px-4 py-2 rounded-lg transition">
 My Presets
-</button>
+</div>
 
-<button
-onClick={handleLogout}
-className="block w-full text-left px-4 py-3 hover:bg-red-600 text-red-400 text-sm"
->
+<button onClick={handleLogout} className="block w-full text-left px-4 py-3 hover:bg-red-600 text-red-400 text-sm">
 Sign Out
 </button>
 
@@ -182,16 +246,18 @@ Sign Out
 
 ) : (
 
-<Link
-href="/login"
-className="bg-white text-black px-4 py-2 rounded-lg text-sm font-semibold"
->
+<Link href="/login" className="bg-white text-black px-4 py-2 rounded-lg text-sm font-semibold">
 Login
 </Link>
 
 )}
 
 </div>
+
+{/* ✅ NEW: CART DRAWER */}
+{cartOpen && (
+  <CartDrawer open={cartOpen} setOpen={setCartOpen} />
+)}
 
 </nav>
 

@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { addToCart } from "@/lib/cart";
+
+/* ✅ KEEP THIS (not removed) */
+import { addDoc, collection } from "firebase/firestore";
+
+/* ✅ ADDED */
+import { saveUserPreset } from "@/lib/saveUserPreset";
+
 import Navbar from "@/components/Navbar";
 import { useProtectedAction } from "@/lib/useProtectedAction";
 import { useAuth } from "@/context/AuthContext";
@@ -27,16 +35,70 @@ export default function PresetPage() {
   const [isPurchased, setIsPurchased] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // ✅ FIXED DOWNLOAD FUNCTION (FINAL)
-  const handleDownloadFile = () => {
+  /* ✅ NEW: TOAST STATE */
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2200);
+  };
+
+  /* ✅ ADDED: FLY TO CART FUNCTION */
+  const flyToCart = () => {
+    const img = document.getElementById("preset-image");
+    const cart = document.querySelector("[data-cart-icon]");
+
+    if (!img || !cart) return;
+
+    const imgRect = img.getBoundingClientRect();
+    const cartRect = cart.getBoundingClientRect();
+
+    const clone = img.cloneNode(true) as HTMLElement;
+
+    clone.style.position = "fixed";
+    clone.style.top = `${imgRect.top}px`;
+    clone.style.left = `${imgRect.left}px`;
+    clone.style.width = `${imgRect.width}px`;
+    clone.style.height = `${imgRect.height}px`;
+    clone.style.transition = "all 0.7s cubic-bezier(0.65, 0, 0.35, 1)";
+    clone.style.zIndex = "9999";
+    clone.style.borderRadius = "12px";
+
+    document.body.appendChild(clone);
+
+    requestAnimationFrame(() => {
+      clone.style.top = `${cartRect.top}px`;
+      clone.style.left = `${cartRect.left}px`;
+      clone.style.width = "30px";
+      clone.style.height = "30px";
+      clone.style.opacity = "0.5";
+    });
+
+    setTimeout(() => {
+      clone.remove();
+    }, 700);
+  };
+
+  const handleDownloadFile = async () => {
     console.log("DOWNLOAD CLICKED", preset);
 
     if (!preset?.downloadUrl) {
-      alert("No download available");
+      showToast("No download available", "error"); // ✅ replaced alert
       return;
     }
 
-    // 🔥 FORCE DOWNLOAD (BEST METHOD)
+    try {
+      if (user) {
+        await saveUserPreset({
+          userId: user.uid,
+          presetId: preset.id,
+          type: isPurchased ? "purchased" : "downloaded",
+        });
+      }
+    } catch (err) {
+      console.log("Error saving download:", err);
+    }
+
     const link = document.createElement("a");
     link.href = preset.downloadUrl;
     link.setAttribute("download", preset.name || "preset");
@@ -45,7 +107,6 @@ export default function PresetPage() {
     document.body.removeChild(link);
   };
 
-  // 🔥 FETCH PRESET
   useEffect(() => {
     const fetchPreset = async () => {
       try {
@@ -58,8 +119,7 @@ export default function PresetPage() {
             ...docSnap.data(),
           };
 
-          console.log("PRESET DATA:", data); // DEBUG
-
+          console.log("PRESET DATA:", data);
           setPreset(data);
         }
       } catch (error) {
@@ -72,7 +132,6 @@ export default function PresetPage() {
     if (id) fetchPreset();
   }, [id]);
 
-  // 🔥 CHECK PURCHASE
   useEffect(() => {
     const checkPurchase = async () => {
       if (!user) return;
@@ -86,7 +145,6 @@ export default function PresetPage() {
     checkPurchase();
   }, [user, id]);
 
-  // 🔥 ANIMATIONS
   useEffect(() => {
     const t1 = setTimeout(() => setAnimateTitle(true), 200);
     const t2 = setTimeout(() => setShowPrice(true), 1600);
@@ -112,7 +170,17 @@ export default function PresetPage() {
 
       <Navbar />
 
-      {/* BACK BUTTON */}
+      {/* ✅ TOAST UI */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 px-6 py-3 rounded-xl text-white shadow-lg z-50
+          ${toast.type === "success"
+            ? "bg-purple-600 shadow-[0_0_20px_rgba(168,85,247,0.9)]"
+            : "bg-red-500 shadow-[0_0_20px_rgba(255,0,0,0.8)]"
+          }`}>
+          {toast.message}
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto px-6 pt-8">
         <button
           onClick={() => router.back()}
@@ -138,31 +206,25 @@ export default function PresetPage() {
               {preset.name}
             </h1>
 
-            {/* 🔥 MAIN BUTTON */}
             <button
               onClick={async () => {
 
                 if (!checkAuth()) return;
 
-                // ✅ ALREADY PURCHASED
                 if (isPurchased) {
                   handleDownloadFile();
                   return;
                 }
 
-                // ✅ FREE PRESET
                 if (preset.price === 0) {
                   handleDownloadFile();
                   return;
                 }
 
-                // ✅ PAYMENT FLOW
                 try {
                   const res = await fetch("/api/create-order", {
                     method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ amount: preset.price }),
                   });
 
@@ -180,9 +242,7 @@ export default function PresetPage() {
                       try {
                         const verifyRes = await fetch("/api/verify-payment", {
                           method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
+                          headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
                             ...response,
                             userId: user?.uid,
@@ -193,15 +253,24 @@ export default function PresetPage() {
                         const data = await verifyRes.json();
 
                         if (data.success) {
+
+                          await saveUserPreset({
+                            userId: user.uid,
+                            presetId: preset.id,
+                            type: "purchased",
+                          });
+
                           setIsPurchased(true);
                           setShowSuccess(true);
+                          showToast("Payment successful 🎉");
+
                         } else {
-                          alert("Payment verification failed");
+                          showToast("Payment verification failed", "error");
                         }
 
                       } catch (err) {
                         console.log(err);
-                        alert("Verification error");
+                        showToast("Verification error", "error");
                       }
                     },
 
@@ -212,7 +281,7 @@ export default function PresetPage() {
                   rzp.open();
 
                 } catch {
-                  alert("Payment failed");
+                  showToast("Payment failed", "error");
                 }
 
               }}
@@ -225,7 +294,27 @@ export default function PresetPage() {
                 : `Buy ₹${preset.price}`}
             </button>
 
-            {/* DESCRIPTION */}
+            <button
+              onClick={() => {
+                if (isPurchased) {
+                  showToast("Already purchased", "error");
+                  return;
+                }
+
+                flyToCart();
+                addToCart(preset);
+                showToast("Added to cart 🛒");
+              }}
+              disabled={isPurchased}
+              className={`mt-3 px-6 py-2 rounded-full border border-purple-500 transition ${
+                isPurchased
+                  ? "opacity-50 cursor-not-allowed"
+                  : "text-purple-300 hover:bg-purple-600 hover:text-white"
+              }`}
+            >
+              {isPurchased ? "Already Owned" : "Add to Cart"}
+            </button>
+
             <div className="mt-8 max-w-md relative overflow-hidden">
               <div className="absolute left-0 top-0 h-full w-[3px] bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
 
@@ -238,37 +327,13 @@ export default function PresetPage() {
 
         </div>
 
-        {/* IMAGE */}
         <div className="flex justify-center mb-10">
           <img
+            id="preset-image"
             src={preset.afterImage}
             className={`rounded-xl max-w-md w-full transition-all duration-[1400ms] ease-out hover:scale-110 hover:shadow-[0_0_40px_rgba(168,85,247,0.6)] ${animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"}`}
           />
         </div>
-
-        {/* SUCCESS POPUP */}
-        {showSuccess && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-            <div className="bg-zinc-900 border border-purple-500 rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(168,85,247,0.6)]">
-              
-              <h2 className="text-xl font-semibold text-purple-300 mb-2">
-                Payment Successful 
-              </h2>
-
-              <p className="text-gray-400 mb-4">
-                Click download to get your preset
-              </p>
-
-              <button
-                onClick={() => setShowSuccess(false)}
-                className="px-5 py-2 bg-purple-600 rounded-lg hover:bg-purple-700"
-              >
-                OK
-              </button>
-
-            </div>
-          </div>
-        )}
 
       </div>
 
