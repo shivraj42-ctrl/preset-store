@@ -3,9 +3,9 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore"; // ✅ ADD THIS
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAfzDHA71Erfcq6xpP4mozjJMddS198CPw",
-  authDomain: "preset42-b7dad.firebaseapp.com",
-  projectId: "preset42-b7dad",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
