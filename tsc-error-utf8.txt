@@ -1,0 +1,20 @@
+__tests__/components/Footer.test.tsx(8,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/components/Footer.test.tsx(11,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/components/Footer.test.tsx(12,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/components/Footer.test.tsx(13,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/components/Footer.test.tsx(16,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+components/CategoryFilter.tsx(5,42): error TS7031: Binding element 'active' implicitly has an 'any' type.
+components/CategoryFilter.tsx(5,49): error TS7031: Binding element 'setActive' implicitly has an 'any' type.
+components/DynamicTitle.tsx(3,24): error TS2307: Cannot find module 'typewriter-effect' or its corresponding type declarations.
+components/Hero.tsx(3,24): error TS2307: Cannot find module 'typewriter-effect' or its corresponding type declarations.
+components/ImageZoom.tsx(5,37): error TS7031: Binding element 'image' implicitly has an 'any' type.
+components/SearchBar.tsx(3,37): error TS7031: Binding element 'search' implicitly has an 'any' type.
+components/SearchBar.tsx(3,45): error TS7031: Binding element 'setSearch' implicitly has an 'any' type.
+preset-ui/preset-store-new/app/layout.tsx(9,38): error TS7031: Binding element 'children' implicitly has an 'any' type.
+preset-ui/preset-store-new/components/Navbar.tsx(33,15): error TS2322: Type 'string | null' is not assignable to type 'string | Blob | undefined'.
+  Type 'null' is not assignable to type 'string | Blob | undefined'.
+preset-ui/preset-store-new/context/AuthContext.tsx(9,32): error TS7031: Binding element 'children' implicitly has an 'any' type.
+preset-ui/preset-store-new/context/AuthContext.tsx(15,15): error TS2345: Argument of type 'User | null' is not assignable to parameter of type 'SetStateAction<null>'.
+  Type 'User' is not assignable to type 'SetStateAction<null>'.
+    Type 'User' provides no match for the signature '(prevState: null): null'.
+preset-ui/preset-store-new/context/AuthContext.tsx(23,27): error TS2322: Type '{ user: null; }' is not assignable to type 'null'.

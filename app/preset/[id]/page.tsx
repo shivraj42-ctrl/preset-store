@@ -3,16 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { addToCart } from "@/lib/cart";
-
-/* ✅ KEEP THIS (not removed) */
-import { addDoc, collection } from "firebase/firestore";
-
-/* ✅ ADDED */
-import { saveUserPreset } from "@/lib/saveUserPreset";
-
+import { getDoc, doc, addDoc, collection } from "firebase/firestore";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import PresetReviews from "@/components/PresetReviews";
+import Image from "next/image";
+import { addToCart } from "@/lib/cart";
+import { saveUserPreset } from "@/lib/saveUserPreset";
 import { useProtectedAction } from "@/lib/useProtectedAction";
 import { useAuth } from "@/context/AuthContext";
 
@@ -255,7 +252,7 @@ export default function PresetPage() {
                         if (data.success) {
 
                           await saveUserPreset({
-                            userId: user.uid,
+                            userId: user!.uid,
                             presetId: preset.id,
                             type: "purchased",
                           });
@@ -328,14 +325,25 @@ export default function PresetPage() {
         </div>
 
         <div className="flex justify-center mb-10">
-          <img
+          <div
             id="preset-image"
-            src={preset.afterImage}
-            className={`rounded-xl max-w-md w-full transition-all duration-[1400ms] ease-out hover:scale-110 hover:shadow-[0_0_40px_rgba(168,85,247,0.6)] ${animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"}`}
-          />
+            className={`relative rounded-xl max-w-md w-full aspect-[4/5] sm:aspect-video overflow-hidden transition-all duration-[1400ms] ease-out hover:scale-110 hover:shadow-[0_0_40px_rgba(168,85,247,0.6)] ${
+              animateTitle ? "translate-x-[35vw] -translate-y-[160px] scale-105" : "translate-x-0 translate-y-0"
+            }`}
+          >
+            <Image
+              src={preset.afterImage}
+              alt={preset.name}
+              fill
+              sizes="(max-width: 640px) 100vw, 50vw"
+              className="object-cover"
+            />
+          </div>
         </div>
 
       </div>
+
+      <PresetReviews presetId={preset.id} isPurchased={isPurchased} />
 
     </div>
   );
