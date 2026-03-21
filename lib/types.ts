@@ -8,6 +8,7 @@ export interface Preset {
   description: string;
   afterImage: string;
   beforeImage?: string;
+  coverImage?: string;
   downloadUrl?: string;
 }
 

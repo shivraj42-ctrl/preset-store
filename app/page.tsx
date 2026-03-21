@@ -15,10 +15,11 @@ export default async function Home() {
 
   try {
     const querySnapshot = await getDocs(collection(db, "presets"));
-    presets = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Preset[];
+    presets = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      // Strip Firestore Timestamp objects — they can't cross Server→Client boundary
+      return JSON.parse(JSON.stringify({ id: doc.id, ...data }));
+    }) as Preset[];
 
     const catSnapshot = await getDocs(collection(db, "categories"));
     const catNames = catSnapshot.docs.map(doc => doc.data().name);

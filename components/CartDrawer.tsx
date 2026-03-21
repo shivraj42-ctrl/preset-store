@@ -175,13 +175,13 @@ export default function CartDrawer({ open, setOpen }: any) {
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 z-[1200] backdrop-blur-sm transition-opacity duration-300"
         />
       )}
 
       {/* DRAWER */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-zinc-900 z-50 transform transition-transform duration-300 shadow-2xl ${
+        className={`fixed top-0 right-0 h-full w-80 bg-zinc-900 z-[1300] transform transition-transform duration-300 shadow-2xl ${
           open ? "translate-x-0 pointer-events-auto" : "translate-x-full pointer-events-none"
         }`}
       >

@@ -10,6 +10,102 @@ import { doc, getDoc, getDocs, collection, deleteDoc, addDoc, setDoc } from "fir
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 
+/* ── Revenue Line Chart Component ── */
+function RevenueLineChart({ data }: { data: { label: string; value: number }[] }) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  const W = 600;
+  const H = 180;
+  const PAD_X = 40;
+  const PAD_Y = 20;
+  const chartW = W - PAD_X * 2;
+  const chartH = H - PAD_Y * 2;
+
+  const maxVal = Math.max(...data.map((d) => d.value), 1);
+  const stepX = chartW / Math.max(data.length - 1, 1);
+
+  const points = data.map((d, i) => ({
+    x: PAD_X + i * stepX,
+    y: PAD_Y + chartH - (d.value / maxVal) * chartH,
+    label: d.label,
+    value: d.value,
+  }));
+
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${PAD_Y + chartH} L ${points[0].x} ${PAD_Y + chartH} Z`;
+
+  // Grid lines (4 horizontal)
+  const gridLines = [0, 0.25, 0.5, 0.75, 1].map((frac) => ({
+    y: PAD_Y + chartH - frac * chartH,
+    label: `₹${Math.round(maxVal * frac)}`,
+  }));
+
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <svg viewBox={`0 0 ${W} ${H + 30}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#a855f7" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0.02" />
+          </linearGradient>
+          <linearGradient id="strokeGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#9333ea" />
+            <stop offset="100%" stopColor="#c084fc" />
+          </linearGradient>
+        </defs>
+
+        {/* Grid lines */}
+        {gridLines.map((g, i) => (
+          <g key={i}>
+            <line x1={PAD_X} y1={g.y} x2={W - PAD_X} y2={g.y} stroke="white" strokeOpacity="0.06" strokeWidth="1" />
+            <text x={PAD_X - 6} y={g.y + 3} textAnchor="end" fill="#6b7280" fontSize="8" fontFamily="sans-serif">
+              {g.label}
+            </text>
+          </g>
+        ))}
+
+        {/* Area fill */}
+        <path d={areaPath} fill="url(#lineGrad)" />
+
+        {/* Line */}
+        <path d={linePath} fill="none" stroke="url(#strokeGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+        {/* Dots + labels */}
+        {points.map((p, i) => (
+          <g key={i} onMouseEnter={() => setHoveredIdx(i)} onMouseLeave={() => setHoveredIdx(null)} style={{ cursor: "pointer" }}>
+            {/* Invisible bigger hit area */}
+            <circle cx={p.x} cy={p.y} r="12" fill="transparent" />
+
+            {/* Visible dot */}
+            <circle cx={p.x} cy={p.y} r={hoveredIdx === i ? 5 : 3.5} fill="#a855f7" stroke="#1a1a2e" strokeWidth="2" style={{ transition: "r 0.15s" }} />
+
+            {/* Glow on hover */}
+            {hoveredIdx === i && (
+              <circle cx={p.x} cy={p.y} r="10" fill="#a855f7" fillOpacity="0.15" />
+            )}
+
+            {/* Tooltip on hover */}
+            {hoveredIdx === i && (
+              <g>
+                <rect x={p.x - 28} y={p.y - 26} width="56" height="18" rx="4" fill="#1f1f2e" stroke="#a855f7" strokeWidth="0.5" strokeOpacity="0.5" />
+                <text x={p.x} y={p.y - 14} textAnchor="middle" fill="#e2e8f0" fontSize="9" fontWeight="600" fontFamily="sans-serif">
+                  ₹{p.value}
+                </text>
+              </g>
+            )}
+
+            {/* X-axis labels */}
+            <text x={p.x} y={H + 12} textAnchor="middle" fill="#6b7280" fontSize="8" fontFamily="sans-serif">
+              {p.label}
+            </text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+
 export default function AdminDashboard() {
   const { user } = useAuth();
   const router = useRouter();
@@ -23,6 +119,9 @@ export default function AdminDashboard() {
     users: 0,
     revenue: 0,
   });
+
+  // Revenue chart data (last 7 days)
+  const [revenueData, setRevenueData] = useState<{ label: string; value: number }[]>([]);
 
   // Presets list
   const [presets, setPresets] = useState<any[]>([]);
@@ -83,13 +182,43 @@ export default function AdminDashboard() {
         priceMap[p.id] = p.price || 0;
       });
 
-      // Calculate revenue from purchases
+      // Calculate revenue from purchases + build daily chart data
       let totalRevenue = 0;
+
+      // Build daily revenue map for last 7 days
+      const dailyMap: Record<string, number> = {};
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const key = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+        dailyMap[key] = 0;
+      }
+
       purchasesSnap.docs.forEach((doc) => {
         const data = doc.data();
         const presetPrice = priceMap[data.presetId] || 0;
         totalRevenue += presetPrice;
+
+        // Parse purchase date
+        let purchaseDate: Date | null = null;
+        if (data.createdAt?.seconds) {
+          purchaseDate = new Date(data.createdAt.seconds * 1000);
+        } else if (data.createdAt?.toDate) {
+          purchaseDate = data.createdAt.toDate();
+        }
+
+        if (purchaseDate) {
+          const key = purchaseDate.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+          if (key in dailyMap) {
+            dailyMap[key] += presetPrice;
+          }
+        }
       });
+
+      setRevenueData(
+        Object.entries(dailyMap).map(([label, value]) => ({ label, value }))
+      );
 
       setStats({
         presetsSold: purchasesSnap.size,
@@ -252,22 +381,12 @@ export default function AdminDashboard() {
         {/* 🔥 MAIN GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-          {/* 📊 CHART */}
-          <div className="md:col-span-2 bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md h-[260px]">
-            <p className="text-xs text-gray-400 mb-3">Revenue Overview</p>
+          {/* 📊 LINE CHART */}
+          <div className="md:col-span-2 bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md h-[280px]">
+            <p className="text-xs text-gray-400 mb-3">Revenue Overview (Last 7 days)</p>
 
-            {stats.revenue > 0 ? (
-              <div className="h-full flex items-end justify-between px-4 pb-4">
-                {[40, 60, 50, 80, 65, 90, 70].map((h, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                    className="w-2 rounded-full bg-gradient-to-t from-orange-500 to-yellow-400"
-                  />
-                ))}
-              </div>
+            {revenueData.length > 0 && revenueData.some((d) => d.value > 0) ? (
+              <RevenueLineChart data={revenueData} />
             ) : (
               <div className="h-full flex items-center justify-center">
                 <p className="text-sm text-gray-500">No revenue data yet</p>
