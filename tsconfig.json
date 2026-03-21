@@ -30,5 +30,15 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "preset-ui",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "components/CategoryFilter.tsx",
+    "components/DynamicTitle.tsx",
+    "components/Hero.tsx",
+    "components/ImageZoom.tsx",
+    "components/SearchBar.tsx"
+  ]
 }

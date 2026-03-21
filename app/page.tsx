@@ -1,158 +1,96 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import PresetCard from "@/components/PresetCard";
+import HeroSection from "@/components/HeroSection";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import FeaturedPresets from "@/components/FeaturedPresets";
+import HomeClient from "@/components/HomeClient";
+import GalleryTeaser from "@/components/GalleryTeaser";
+import StatsSection from "@/components/StatsSection";
+import Footer from "@/components/Footer";
 import { db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import type { Preset } from "@/lib/types";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
 
-  const [presets, setPresets] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export default async function Home() {
+  let presets: Preset[] = [];
+  let categories: string[] = ["All"];
+  let galleryPhotos: any[] = [];
+  let totalCustomers = 0;
 
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+  try {
+    // Fetch presets
+    const querySnapshot = await getDocs(collection(db, "presets"));
+    presets = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return JSON.parse(JSON.stringify({ id: doc.id, ...data }));
+    }) as Preset[];
 
-  const categories = ["All", "Portrait", "Travel", "Cinematic", "Street"];
+    // Fetch categories
+    const catSnapshot = await getDocs(collection(db, "categories"));
+    const catNames = catSnapshot.docs.map((doc) => doc.data().name);
+    categories = ["All", ...catNames];
 
-  useEffect(() => {
+    // Fetch gallery photos (latest 3)
+    try {
+      const gq = query(collection(db, "gallery"), orderBy("createdAt", "desc"), limit(3));
+      const gallerySnap = await getDocs(gq);
+      galleryPhotos = gallerySnap.docs.map((d) =>
+        JSON.parse(JSON.stringify({ id: d.id, ...d.data() }))
+      );
+    } catch (e) {
+      // gallery collection might not exist yet
+    }
 
-    const fetchPresets = async () => {
+    // Count purchases for stats
+    try {
+      const purchaseSnap = await getDocs(collection(db, "purchases"));
+      const uniqueUsers = new Set(purchaseSnap.docs.map((d) => d.data().userId));
+      totalCustomers = uniqueUsers.size;
+    } catch (e) {
+      // purchases collection might not exist yet
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
 
-      try {
+  // Get preview images for hero floating cards
+  const previewImages = presets
+    .filter((p) => p.coverImage || p.afterImage)
+    .slice(0, 3)
+    .map((p) => p.coverImage || p.afterImage || "");
 
-        const querySnapshot = await getDocs(collection(db, "presets"));
-
-        const presetList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        console.log("Presets loaded:", presetList); // debugging
-
-        setPresets(presetList);
-
-      } catch (error) {
-
-        console.error("Error fetching presets:", error);
-
-      } finally {
-        setLoading(false);
-      }
-
-    };
-
-    fetchPresets();
-
-  }, []);
-
-  const filteredPresets = presets.filter((preset: any) => {
-
-    const matchesSearch =
-      preset.name?.toLowerCase().includes(search.toLowerCase());
-
-    const matchesCategory =
-      category === "All" || preset.category === category;
-
-    return matchesSearch && matchesCategory;
-
-  });
+  // Featured presets (first 8 for the scrolling strip)
+  const featured = presets.slice(0, 8);
 
   return (
-    <div className="bg-black min-h-screen text-white">
-
+    <div className="min-h-screen text-white">
       <Navbar />
 
-      {/* HERO */}
-      <section className="text-center py-32 px-6 bg-gradient-to-b from-black to-zinc-900">
+      {/* 1. Hero */}
+      <HeroSection previewImages={previewImages} />
 
-        <h1 className="text-6xl font-bold mb-6">
-          Premium Lightroom Classic
-        </h1>
-
-        <p className="text-gray-400 text-xl max-w-xl mx-auto mb-10">
-          Transform your photos instantly using presets used by creators.
-        </p>
-
-        <div className="flex justify-center gap-6">
-
-         
-        </div>
-
-      </section>
-
-      {/* BEFORE AFTER SLIDER */}
+      {/* 2. Before/After */}
       <BeforeAfterSlider />
 
-      {/* PRESETS */}
-      <section className="max-w-6xl mx-auto px-6 pb-24">
+      {/* 3. Featured / Trending */}
+      <FeaturedPresets presets={featured} />
 
-        <h2 className="text-3xl font-bold mb-10 text-center">
-          Popular Presets
-        </h2>
+      {/* 4. All Presets (search + filter + grid) */}
+      <HomeClient initialPresets={presets} categories={categories} />
 
-        {/* SEARCH */}
-        <div className="max-w-md mx-auto mb-10">
+      {/* 5. Gallery Teaser */}
+      <GalleryTeaser photos={galleryPhotos} />
 
-          <input
-            type="text"
-            placeholder="Search presets..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-700 text-white
-focus:ring-2 focus:ring-purple-500 focus:shadow-[0_0_12px_rgba(168,85,247,0.5)]"
-          />
+      {/* 6. Stats */}
+      <StatsSection
+        totalPresets={presets.length}
+        totalCustomers={totalCustomers}
+        totalPhotos={galleryPhotos.length}
+      />
 
-        </div>
-
-        {/* CATEGORY */}
-        <div className="flex justify-center gap-4 mb-12 flex-wrap">
-
-          {categories.map((cat) => (
-           <button
-  key={cat}
-  onClick={() => setCategory(cat)}
-  className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300 transform ${
-    category === cat
-      ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.9)] scale-105"
-      : "bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 hover:border-purple-500 hover:shadow-[0_0_12px_rgba(168,85,247,0.6)] hover:scale-110"
-  }`}
->
-  {cat}
-</button>
-          ))}
-
-        </div>
-
-        {/* LOADING */}
-        {loading && (
-          <p className="text-center text-gray-400">
-            Loading presets...
-          </p>
-        )}
-
-        {/* GRID */}
-        {!loading && filteredPresets.length === 0 ? (
-          <p className="text-center text-gray-400">
-            No presets found.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-
-            {filteredPresets.map((preset: any) => (
-              <PresetCard
-                key={preset.id}
-                preset={preset}
-              />
-            ))}
-
-          </div>
-        )}
-
-      </section>
-
+      {/* 7. Footer */}
+      <Footer />
     </div>
   );
 }

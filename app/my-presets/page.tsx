@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { db } from "@/lib/firebase";
 import {
   collection,
@@ -69,7 +70,7 @@ export default function MyPresets() {
   }
 
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="min-h-screen text-white">
 
       <Navbar />
 
@@ -86,10 +87,14 @@ export default function MyPresets() {
               key={i}
               className="bg-zinc-900 p-4 rounded-xl border border-purple-500 shadow hover:shadow-purple-500/40 hover:scale-105 transition"
             >
-              <img
-                src={p.afterImage}
-                className="rounded-lg mb-3 h-48 w-full object-cover"
-              />
+              <div className="relative w-full h-48 mb-3">
+                <Image
+                  src={p.afterImage}
+                  alt={p.name}
+                  fill
+                  className="rounded-lg object-cover"
+                />
+              </div>
 
               <h3 className="text-lg font-semibold">{p.name}</h3>
 

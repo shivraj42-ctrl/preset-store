@@ -39,7 +39,7 @@ export default function ViewLivePreset() {
   ];
 
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="min-h-screen text-white">
 
       <Navbar />
 

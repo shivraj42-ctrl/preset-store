@@ -1,9 +1,9 @@
 "use client";
 
-import { LayoutDashboard, Package, ShoppingCart, Users } from "lucide-react";
+import { LayoutDashboard, Package, Users, ImageIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import BubblesBackground from "./BubblesBackground";
+import Navbar from "@/components/Navbar";
 
 export default function AdminLayout({ children }: any) {
   const pathname = usePathname();
@@ -11,15 +11,14 @@ export default function AdminLayout({ children }: any) {
   const navItems = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
     { name: "Presets", icon: Package, path: "/admin/presets" },
-    { name: "Orders", icon: ShoppingCart, path: "/admin/orders" },
+    { name: "Gallery", icon: ImageIcon, path: "/admin/gallery" },
     { name: "Users", icon: Users, path: "/admin/users" },
   ];
 
   return (
-    <div className="min-h-screen relative bg-[#0b0a09] text-white flex overflow-hidden">
-
-      {/* 🌫️ BUBBLES */}
-      <BubblesBackground />
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <div className="flex-1 relative text-white flex overflow-hidden">
 
       {/* SIDEBAR */}
       <div className="w-64 p-5 border-r border-white/10 backdrop-blur-xl bg-white/5 z-10">
@@ -59,6 +58,7 @@ export default function AdminLayout({ children }: any) {
 
       </div>
 
+      </div>
     </div>
   );
 }
