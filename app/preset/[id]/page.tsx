@@ -316,7 +316,7 @@ export default function PresetPage() {
   /* LOADING STATE */
   if (loading) {
     return (
-      <div className="bg-black min-h-screen text-white">
+      <div className="min-h-screen text-white">
         <Navbar />
         <div className="flex items-center justify-center h-[60vh]">
           <div className="flex flex-col items-center gap-4">
@@ -330,7 +330,7 @@ export default function PresetPage() {
 
   if (!preset) {
     return (
-      <div className="bg-black min-h-screen text-white">
+      <div className="min-h-screen text-white">
         <Navbar />
         <div className="flex items-center justify-center h-[60vh]">
           <div className="text-center">
@@ -357,7 +357,7 @@ export default function PresetPage() {
   ];
 
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="min-h-screen text-white">
       <Navbar />
 
       {/* TOAST */}

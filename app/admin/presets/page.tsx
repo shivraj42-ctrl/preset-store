@@ -2,6 +2,7 @@
 
 import AdminLayout from "@/components/AdminLayout";
 import { motion } from "framer-motion";
+import BentoGrid, { BentoCard } from "@/components/MagicBento";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -204,17 +205,9 @@ export default function AdminPresetsPage() {
         )}
 
         {/* HEADER */}
-        <div className="flex items-center gap-3">
-          <Upload size={20} className="text-purple-400" />
-          <h1 className="text-lg font-medium">Upload Preset</h1>
-        </div>
-
-        {/* UPLOAD FORM */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-md"
-        >
+        <BentoGrid className="grid-cols-1" enableSpotlight spotlightRadius={800}>
+          {/* UPLOAD FORM */}
+          <BentoCard label="Upload Preset" enableStars={false}>
           <form onSubmit={handleSubmit} className="space-y-5">
 
             {/* Row 1: Name + Price */}
@@ -416,20 +409,10 @@ export default function AdminPresetsPage() {
               )}
             </motion.button>
           </form>
-        </motion.div>
+          </BentoCard>
 
-        {/* PRESETS TABLE */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md"
-        >
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xs text-gray-400">
-              All Presets ({presets.length})
-            </h2>
-          </div>
+          {/* PRESETS TABLE */}
+          <BentoCard label={`All Presets (${presets.length})`} enableStars={false}>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -497,7 +480,8 @@ export default function AdminPresetsPage() {
               </tbody>
             </table>
           </div>
-        </motion.div>
+          </BentoCard>
+        </BentoGrid>
       </div>
     </AdminLayout>
   );

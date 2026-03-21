@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import Masonry from "./Masonry";
 
 export default function GalleryGrid({
   photos,
@@ -15,36 +16,20 @@ export default function GalleryGrid({
 
   return (
     <>
-      {/* 3-column grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {photos.map((photo, i) => (
-          <motion.div
-            key={photo.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: i * 0.05 }}
-            onClick={() => setSelected(photo.id)}
-            className="group relative aspect-[4/3] rounded-xl overflow-hidden border border-white/[0.06] cursor-pointer bg-zinc-900"
-          >
-            <img
-              src={photo.imageUrl}
-              alt={photo.title || "Photo"}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-            />
-
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {photo.title && (
-                <div className="absolute bottom-0 inset-x-0 p-4">
-                  <p className="text-sm font-medium text-white truncate">
-                    {photo.title}
-                  </p>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        ))}
+      <div className="w-full" style={{ paddingBottom: '50px' }}>
+        <Masonry 
+          items={photos.map((photo, i) => {
+            const heights = [400, 250, 500, 300, 450, 350, 550, 280];
+            return {
+              id: photo.id,
+              img: photo.imageUrl,
+              title: photo.title,
+              height: heights[i % heights.length]
+            };
+          })}
+          onItemClick={(id) => setSelected(id)}
+          colorShiftOnHover={true}
+        />
       </div>
 
       {/* Lightbox */}
@@ -54,7 +39,7 @@ export default function GalleryGrid({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[999] flex items-center justify-center p-4 md:p-8"
             onClick={() => setSelected(null)}
           >
             <motion.div
@@ -62,13 +47,13 @@ export default function GalleryGrid({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="relative max-w-4xl max-h-[85vh] w-full"
+              className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
               <img
                 src={selectedPhoto.imageUrl}
                 alt={selectedPhoto.title || "Photo"}
-                className="w-full h-full object-contain rounded-xl"
+                className="max-h-[85vh] max-w-full object-contain rounded-xl"
               />
 
               {/* Close button */}

@@ -83,7 +83,7 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <div className="bg-black min-h-screen text-white flex flex-col">
+      <div className="min-h-screen text-white flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4">
@@ -101,7 +101,7 @@ export default function AccountPage() {
   const isGoogleUser = user.providerData?.[0]?.providerId === "google.com";
 
   return (
-    <div className="bg-black min-h-screen text-white flex flex-col">
+    <div className="min-h-screen text-white flex flex-col">
 
       <Navbar />
 

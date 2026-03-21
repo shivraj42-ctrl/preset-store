@@ -2,6 +2,7 @@
 
 import AdminLayout from "@/components/AdminLayout";
 import { motion } from "framer-motion";
+import BentoGrid, { BentoCard } from "@/components/MagicBento";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, getDocs, collection } from "firebase/firestore";
@@ -61,20 +62,9 @@ export default function AdminUsersPage() {
     <AdminLayout>
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <Users size={20} className="text-purple-400" />
-          <h1 className="text-lg font-medium">All Users</h1>
-          <span className="ml-auto text-xs text-gray-400 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
-            {users.length} total
-          </span>
-        </div>
-
-        {/* Users Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md"
-        >
+        <BentoGrid className="grid-cols-1" enableSpotlight spotlightRadius={800}>
+          {/* Users Table */}
+          <BentoCard label={`All Users (${users.length})`} enableStars={false}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-gray-400 text-xs">
@@ -157,7 +147,8 @@ export default function AdminUsersPage() {
               </tbody>
             </table>
           </div>
-        </motion.div>
+          </BentoCard>
+        </BentoGrid>
       </div>
     </AdminLayout>
   );

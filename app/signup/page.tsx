@@ -116,7 +116,7 @@ function SignupContent() {
   const strengthColors = ["bg-white/10", "bg-red-500", "bg-yellow-500", "bg-green-500"];
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen text-white flex items-center justify-center relative overflow-hidden">
 
       {/* Background glow effects */}
       <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
@@ -281,7 +281,7 @@ function SignupContent() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-black text-gray-400">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-400">Loading...</div>}>
       <SignupContent />
     </Suspense>
   );

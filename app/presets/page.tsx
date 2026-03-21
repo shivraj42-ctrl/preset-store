@@ -137,7 +137,7 @@ function PresetsContent() {
 
 export default function PresetsPage() {
   return (
-    <div className="bg-black min-h-screen text-white flex flex-col">
+    <div className="min-h-screen text-white flex flex-col">
       <Navbar />
       <main id="main-content" className="flex-1 w-full flex flex-col">
         <Suspense fallback={

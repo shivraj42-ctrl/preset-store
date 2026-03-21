@@ -66,7 +66,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="bg-black min-h-screen text-white flex flex-col">
+    <div className="min-h-screen text-white flex flex-col">
 
       <Navbar />
 

@@ -2,6 +2,7 @@
 
 import AdminLayout from "@/components/AdminLayout";
 import { motion } from "framer-motion";
+import BentoGrid, { BentoCard } from "@/components/MagicBento";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -193,23 +194,9 @@ export default function AdminGalleryPage() {
         )}
 
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <ImageIcon size={20} className="text-purple-400" />
-          <h1 className="text-lg font-medium">Photo Gallery</h1>
-          <span className="ml-auto text-xs text-gray-400 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
-            {photos.length} photos
-          </span>
-        </div>
-
-        {/* Upload Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md"
-        >
-          <h2 className="text-sm font-medium text-gray-300 mb-4 flex items-center gap-2">
-            <Plus size={14} /> Add Photo
-          </h2>
+        <BentoGrid className="grid-cols-1" enableSpotlight spotlightRadius={800}>
+          {/* Upload Form */}
+          <BentoCard label="Add Photo" enableStars={false}>
 
           {/* Toggle: File Upload vs URL */}
           <div className="flex gap-2 mb-5">
@@ -312,18 +299,10 @@ export default function AdminGalleryPage() {
               <p className="text-[11px] text-gray-500 mt-1">Preview</p>
             </div>
           )}
-        </motion.div>
+          </BentoCard>
 
-        {/* Photos Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md"
-        >
-          <h2 className="text-sm font-medium text-gray-300 mb-4">
-            All Photos
-          </h2>
+          {/* Photos Grid */}
+          <BentoCard label={`All Photos (${photos.length})`} enableStars={false}>
 
           {photos.length === 0 ? (
             <p className="text-center text-gray-500 py-8">
@@ -358,7 +337,8 @@ export default function AdminGalleryPage() {
               ))}
             </div>
           )}
-        </motion.div>
+          </BentoCard>
+        </BentoGrid>
       </div>
     </AdminLayout>
   );

@@ -14,7 +14,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-6">
       <div className="text-center space-y-6 max-w-md">
 
         <div className="text-6xl">⚠️</div>

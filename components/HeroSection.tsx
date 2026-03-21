@@ -89,7 +89,7 @@ export default function HeroSection({ previewImages }: { previewImages: string[]
           transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <Link
+          {/* <Link
             href="#presets"
             className="group relative px-8 py-4 rounded-xl bg-purple-600 text-white font-semibold text-sm uppercase tracking-wider overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] hover:bg-purple-500"
           >
@@ -101,7 +101,7 @@ export default function HeroSection({ previewImages }: { previewImages: string[]
             className="px-8 py-4 rounded-xl border border-white/20 text-white font-semibold text-sm uppercase tracking-wider hover:bg-white/5 hover:border-purple-500/50 transition-all duration-300"
           >
             View Gallery
-          </Link>
+          </Link> */}
         </motion.div>
       </div>
 

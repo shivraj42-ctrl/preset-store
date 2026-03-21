@@ -119,7 +119,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen text-white flex items-center justify-center relative overflow-hidden">
 
       {/* Background glow effects */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
@@ -272,7 +272,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-black text-gray-400">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-400">Loading...</div>}>
       <LoginContent />
     </Suspense>
   );

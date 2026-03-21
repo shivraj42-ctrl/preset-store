@@ -2,6 +2,7 @@
 
 import AdminLayout from "@/components/AdminLayout";
 import { motion } from "framer-motion";
+import BentoGrid, { BentoCard } from "@/components/MagicBento";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -340,236 +341,171 @@ export default function AdminDashboard() {
         {/* HEADER */}
         <h1 className="text-lg font-medium">Dashboard Overview</h1>
 
-        {/* 🔥 STATS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-
+        {/* 🔥 STATS BENTO GRID */}
+        <BentoGrid className="grid-cols-2 md:grid-cols-4" enableSpotlight spotlightRadius={400}>
           {statCards.map((item, i) => (
-
-            <motion.div
-              key={i}
-              initial={{ scale: 1 }}
-              whileHover={{
-                scale: 1.06,
-                y: -10,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 18,
-              }}
-              className="group relative bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-md overflow-hidden"
-            >
-
-              {/* ✨ GLOW */}
-              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none
-                bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.25),transparent_70%)]"
-              />
-
-              {/* ✨ BORDER GLOW */}
-              <div className="absolute inset-0 rounded-xl border border-transparent group-hover:border-white/30 transition duration-300" />
-
-              {/* CONTENT */}
-              <p className="text-xs text-gray-400">{item.title}</p>
-              <h2 className="text-xl font-semibold mt-1">{item.value}</h2>
-
-            </motion.div>
-
+            <BentoCard key={i} label={item.title} enableStars enableBorderGlow particleCount={8}>
+              <h2 className="text-3xl font-semibold mt-4 bg-gradient-to-br from-white to-white/50 bg-clip-text text-transparent">{item.value}</h2>
+            </BentoCard>
           ))}
+        </BentoGrid>
 
-        </div>
-
-        {/* 🔥 MAIN GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-          {/* 📊 LINE CHART */}
-          <div className="md:col-span-2 bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md h-[280px]">
-            <p className="text-xs text-gray-400 mb-3">Revenue Overview (Last 7 days)</p>
-
+        {/* 🔥 MAIN CONTENT BENTO GRID */}
+        <BentoGrid className="grid-cols-1 md:grid-cols-3" enableSpotlight spotlightRadius={500}>
+          <BentoCard className="md:col-span-2 h-[320px]" label="Revenue Overview (Last 7 days)" enableStars={false}>
             {revenueData.length > 0 && revenueData.some((d) => d.value > 0) ? (
-              <RevenueLineChart data={revenueData} />
+              <div className="h-[220px] mt-2">
+                <RevenueLineChart data={revenueData} />
+              </div>
             ) : (
               <div className="h-full flex items-center justify-center">
                 <p className="text-sm text-gray-500">No revenue data yet</p>
               </div>
             )}
-          </div>
+          </BentoCard>
 
-          {/* 👥 ACTIVITY */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md">
-            <p className="text-xs text-gray-400 mb-2">
-              Quick Stats
-            </p>
-            <div className="space-y-3 mt-4">
-              <div className="flex justify-between text-sm">
+          <BentoCard label="Quick Stats" particleCount={6}>
+            <div className="space-y-4 mt-6">
+              <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-400">Total Revenue</span>
-                <span className="text-green-400 font-medium">₹{stats.revenue}</span>
+                <span className="text-green-400 font-semibold px-2 py-1 bg-green-500/10 rounded-md">₹{stats.revenue}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between items-center text-sm text-white/10 my-1"><div className="w-full border-t border-white/5 border-dashed" /></div>
+              <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-400">Avg. per Sale</span>
-                <span className="text-yellow-400 font-medium">
+                <span className="text-yellow-400 font-semibold px-2 py-1 bg-yellow-500/10 rounded-md">
                   ₹{stats.presetsSold > 0 ? Math.round(stats.revenue / stats.presetsSold) : 0}
                 </span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between items-center text-sm text-white/10 my-1"><div className="w-full border-t border-white/5 border-dashed" /></div>
+              <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-400">Free Presets</span>
-                <span className="text-purple-400 font-medium">
+                <span className="text-purple-400 font-semibold px-2 py-1 bg-purple-500/10 rounded-md">
                   {presets.filter((p) => p.price === 0).length}
                 </span>
               </div>
             </div>
-          </div>
+          </BentoCard>
 
-        </div>
+          <BentoCard className="md:col-span-3 lg:col-span-1" label="Manage Categories" enableStars={false}>
+            <form onSubmit={handleAddCategory} className="flex gap-2 mb-6 mt-2">
+              <input
+                type="text"
+                placeholder="New Category Name"
+                value={newCat}
+                onChange={(e) => setNewCat(e.target.value)}
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors"
+              />
+              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-5 py-2.5 rounded-xl text-sm text-white font-medium transition shadow-lg shadow-purple-500/20">Add</button>
+            </form>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <div key={cat.id} className="flex items-center gap-2 bg-white/[0.06] border border-white/[0.08] pl-3 pr-1 py-1 rounded-full text-sm hover:bg-white/[0.1] transition-colors">
+                  <span className="text-gray-200">{cat.name}</span>
+                  <button onClick={() => handleDeleteCategory(cat.id)} className="w-6 h-6 flex items-center justify-center rounded-full text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">×</button>
+                </div>
+              ))}
+            </div>
+          </BentoCard>
 
-        {/* 🗂 CATEGORIES MANAGER */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md mb-8">
-          <h2 className="text-xs text-gray-400 mb-4">Manage Categories</h2>
-          <form onSubmit={handleAddCategory} className="flex gap-3 mb-6">
-            <input
-              type="text"
-              placeholder="New Category Name"
-              value={newCat}
-              onChange={(e) => setNewCat(e.target.value)}
-              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-4 text-sm text-white focus:outline-none focus:border-purple-500"
-            />
-            <button
-              type="submit"
-              className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-sm text-white font-medium transition"
-            >
-              Add
-            </button>
-          </form>
+          <BentoCard className="md:col-span-3 lg:col-span-2" label="Manage Promo Codes" enableStars={false}>
+            <form onSubmit={handleAddPromo} className="flex gap-3 mb-6 mt-2">
+              <input
+                type="text"
+                placeholder="CODE (e.g. SUMMER20)"
+                value={newPromoCode}
+                onChange={(e) => setNewPromoCode(e.target.value.toUpperCase())}
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 uppercase transition-colors"
+              />
+              <input
+                type="number"
+                placeholder="% Off"
+                value={newPromoDiscount}
+                onChange={(e) => setNewPromoDiscount(e.target.value)}
+                className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors"
+                min="1"
+                max="100"
+              />
+              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-8 py-2.5 rounded-xl text-sm text-white font-medium transition shadow-lg shadow-purple-500/20">Create</button>
+            </form>
+            <div className="flex flex-wrap gap-3">
+              {promoCodes.map((promo) => (
+                <div key={promo.id} className="flex items-center gap-2 bg-white/[0.06] border border-purple-500/20 pl-4 pr-1 py-1 bg-gradient-to-r from-purple-500/10 to-transparent rounded-full hover:bg-white/[0.1] transition-colors">
+                  <span className="text-sm font-semibold text-purple-300">{promo.code}</span>
+                  <span className="text-xs bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full font-medium ml-1">-{promo.discountPercent}%</span>
+                  <button onClick={() => handleDeletePromo(promo.id)} className="w-6 h-6 ml-1 flex items-center justify-center rounded-full text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">×</button>
+                </div>
+              ))}
+            </div>
+          </BentoCard>
+        </BentoGrid>
 
-          <div className="flex flex-wrap gap-3">
-            {categories.map((cat) => (
-              <div key={cat.id} className="flex items-center gap-2 bg-zinc-800 border border-zinc-700 px-3 py-1.5 rounded-full">
-                <span className="text-sm">{cat.name}</span>
-                <button
-                  onClick={() => handleDeleteCategory(cat.id)}
-                  className="text-red-400 hover:text-red-300 ml-1 font-bold"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 🎟️ PROMO CODES MANAGER */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md mb-8">
-          <h2 className="text-xs text-gray-400 mb-4">Manage Promo Codes</h2>
-          <form onSubmit={handleAddPromo} className="flex gap-3 mb-6">
-            <input
-              type="text"
-              placeholder="CODE (e.g. SUMMER20)"
-              value={newPromoCode}
-              onChange={(e) => setNewPromoCode(e.target.value.toUpperCase())}
-              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-4 text-sm text-white focus:outline-none focus:border-purple-500 uppercase"
-            />
-            <input
-              type="number"
-              placeholder="% Off"
-              value={newPromoDiscount}
-              onChange={(e) => setNewPromoDiscount(e.target.value)}
-              className="w-24 bg-zinc-900 border border-zinc-700 rounded-lg px-4 text-sm text-white focus:outline-none focus:border-purple-500"
-              min="1"
-              max="100"
-            />
-            <button
-              type="submit"
-              className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-sm text-white font-medium transition"
-            >
-              Create
-            </button>
-          </form>
-
-          <div className="flex flex-wrap gap-3">
-            {promoCodes.map((promo) => (
-              <div key={promo.id} className="flex items-center gap-2 bg-zinc-800 border border-zinc-700 px-3 py-1.5 rounded-full">
-                <span className="text-sm font-semibold text-purple-400">{promo.code}</span>
-                <span className="text-xs text-green-400">-{promo.discountPercent}%</span>
-                <button
-                  onClick={() => handleDeletePromo(promo.id)}
-                  className="text-red-400 hover:text-red-300 ml-1 font-bold"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 🔥 PRESETS TABLE */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-5 backdrop-blur-md">
-
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xs text-gray-400">All Presets ({presets.length})</h2>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-gray-400 text-xs">
-                <tr>
-                  <th className="text-left pb-3">Image</th>
-                  <th className="text-left pb-3">Name</th>
-                  <th className="text-center pb-3">Category</th>
-                  <th className="text-center pb-3">Price</th>
-                  <th className="text-center pb-3">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {presets.length === 0 ? (
-                  <tr className="border-t border-white/10">
-                    <td className="py-3 text-gray-500" colSpan={5}>
-                      No presets yet
-                    </td>
-                  </tr>
-                ) : (
-                  presets.map((preset) => (
-                    <tr key={preset.id} className="border-t border-white/10 hover:bg-white/5 transition">
-                      <td className="py-3">
-                        {preset.afterImage ? (
-                          <div className="relative w-10 h-10">
-                            <Image
-                              src={preset.afterImage}
-                              alt={preset.name}
-                              fill
-                              className="rounded-lg object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg bg-zinc-800" />
-                        )}
-                      </td>
-                      <td className="py-3 font-medium">{preset.name}</td>
-                      <td className="text-center py-3">
-                        <span className="px-2 py-1 rounded-full text-xs bg-purple-500/20 text-purple-300">
-                          {preset.category || "—"}
-                        </span>
-                      </td>
-                      <td className="text-center py-3">
-                        {preset.price === 0 ? (
-                          <span className="text-green-400">Free</span>
-                        ) : (
-                          `₹${preset.price}`
-                        )}
-                      </td>
-                      <td className="text-center py-3">
-                        <button
-                          onClick={() => handleDeletePreset(preset.id, preset.name)}
-                          className="text-red-400 hover:text-red-500 text-xs px-3 py-1 border border-red-400/30 rounded-lg hover:bg-red-500/10 transition"
-                        >
-                          Delete
-                        </button>
-                      </td>
+        {/* 🔥 PRESETS TABLE BENTO */}
+        <div className="mt-4">
+          <BentoGrid className="grid-cols-1" enableSpotlight spotlightRadius={800}>
+            <BentoCard label={`All Presets (${presets.length})`} enableStars={false}>
+              <div className="overflow-x-auto mt-4">
+                <table className="w-full text-sm">
+                  <thead className="text-gray-400 text-xs tracking-wider uppercase border-b border-white/10">
+                    <tr>
+                      <th className="text-left pb-4 font-medium">Image</th>
+                      <th className="text-left pb-4 font-medium">Name</th>
+                      <th className="text-center pb-4 font-medium">Category</th>
+                      <th className="text-center pb-4 font-medium">Price</th>
+                      <th className="text-center pb-4 font-medium">Actions</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
+                  </thead>
+                  <tbody>
+                    {presets.length === 0 ? (
+                      <tr>
+                        <td className="py-8 text-center text-gray-500 bg-white/[0.02] rounded-xl" colSpan={5}>
+                          <div className="flex flex-col items-center justify-center">
+                            <span className="text-3xl mb-2">📸</span>
+                            No presets yet
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      presets.map((preset) => (
+                        <tr key={preset.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                          <td className="py-4">
+                            {preset.afterImage ? (
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10 group-hover:border-purple-500/30 transition-colors">
+                                <Image src={preset.afterImage} alt={preset.name} fill className="object-cover" />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10" />
+                            )}
+                          </td>
+                          <td className="py-4 font-medium text-gray-200">{preset.name}</td>
+                          <td className="text-center py-4">
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 border border-purple-500/20 text-purple-300">
+                              {preset.category || "—"}
+                            </span>
+                          </td>
+                          <td className="text-center py-4">
+                            {preset.price === 0 ? (
+                              <span className="text-green-400 font-medium px-2 py-1 bg-green-500/10 rounded-md">Free</span>
+                            ) : (
+                              <span className="text-gray-200">₹{preset.price}</span>
+                            )}
+                          </td>
+                          <td className="text-center py-4">
+                            <button
+                              onClick={() => handleDeletePreset(preset.id, preset.name)}
+                              className="text-red-400 hover:text-red-300 text-xs px-4 py-1.5 border border-red-500/20 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-all opacity-70 group-hover:opacity-100"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </BentoCard>
+          </BentoGrid>
         </div>
 
       </div>
