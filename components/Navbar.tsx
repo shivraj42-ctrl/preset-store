@@ -198,7 +198,7 @@ export default function Navbar() {
   return (
     <>
       {/* ── MOBILE TOP BAR (logo + hamburger) ── */}
-      <div className="md:hidden sticky top-0 z-[900] w-full bg-black/80 backdrop-blur-xl border-b border-zinc-800">
+      <div className="md:hidden sticky top-0 z-[900] w-full bg-white/5 backdrop-blur-xl border-b border-white/10">
         <div className="px-6 py-3 flex items-center justify-between">
           <Link href="/" className="flex-shrink-0">
             <img
@@ -337,11 +337,11 @@ export default function Navbar() {
 
       {/* ── MOBILE MENU ── */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 bg-zinc-900 z-[960] md:hidden transform transition-transform duration-300 shadow-2xl ${
+        className={`fixed top-0 right-0 h-full w-72 bg-black/40 backdrop-blur-2xl border-l border-white/10 z-[960] md:hidden transform transition-transform duration-300 shadow-2xl ${
           mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <span className="text-lg font-semibold text-purple-400">Menu</span>
           <button
             onClick={() => setMobileOpen(false)}

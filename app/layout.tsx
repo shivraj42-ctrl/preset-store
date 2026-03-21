@@ -4,8 +4,9 @@ import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import PlasmaBackground from "@/components/PlasmaBackground";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,8 +62,8 @@ export default function RootLayout({
           `}
         </Script>
 
-        <a 
-          href="#main-content" 
+        <a
+          href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-purple-600 focus:text-white"
         >
           Skip to main content
@@ -75,7 +76,10 @@ export default function RootLayout({
         />
 
         <AuthProvider>
-          {children}
+          <PlasmaBackground />
+          <div className="relative z-10">
+            {children}
+          </div>
         </AuthProvider>
 
       </body>
