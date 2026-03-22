@@ -415,16 +415,8 @@ export const StaggeredMenu = ({
           className="staggered-menu-header absolute top-0 left-0 w-full flex items-center justify-between px-6 py-3 bg-white/5 backdrop-blur-xl border-b border-white/10 pointer-events-auto z-20"
           aria-label="Main navigation header"
         >
-          <div className="sm-logo flex items-center select-none pointer-events-auto" aria-label="Logo">
-            <Link href="/" prefetch={false} onClick={() => closeMenu()}>
-              <img
-                src={logoUrl || '/src/assets/logos/reactbits-gh-white.svg'}
-                alt="Logo"
-                className="sm-logo-img block h-12 w-auto object-contain drop-shadow"
-                style={{ filter: "drop-shadow(0 0 10px rgba(168,85,247,0.8))" }}
-                draggable={false}
-              />
-            </Link>
+          <div className="sm-logo flex items-center select-none pointer-events-none" aria-label="Logo">
+            {/* Logo removed — displayed in hero section instead */}
           </div>
 
           <button
@@ -544,7 +536,7 @@ export const StaggeredMenu = ({
 .sm-scope .staggered-menu-header { position: absolute; top: 0; left: 0; width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 2em; background: transparent; pointer-events: none; z-index: 20; }
 .sm-scope .staggered-menu-header > * { pointer-events: auto; }
 .sm-scope .sm-logo { display: flex; align-items: center; user-select: none; }
-.sm-scope .sm-logo-img { display: block; height: 32px; width: auto; object-fit: contain; }
+.sm-scope .sm-logo-img { display: block; height: 100px; width: auto; object-fit: contain; }
 .sm-scope .sm-toggle { position: relative; display: inline-flex; align-items: center; gap: 0.3rem; background: transparent; border: none; cursor: pointer; color: #e9e9ef; font-weight: 500; line-height: 1; overflow: visible; }
 .sm-scope .sm-toggle:focus-visible { outline: 2px solid #ffffffaa; outline-offset: 4px; border-radius: 4px; }
 .sm-scope .sm-line:last-of-type { margin-top: 6px; }

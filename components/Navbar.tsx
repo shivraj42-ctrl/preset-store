@@ -211,11 +211,11 @@ export default function Navbar() {
     { label: `Cart (${cartCount})`, onClick: () => setCartOpen(true) },
     ...(user
       ? [
-          ...(isAdmin ? [{ label: "Admin Panel", link: "/admin" }] : []),
-          { label: "Account Settings", link: "/account" },
-          { label: "My Presets", link: "/my-presets" },
-          { label: "Sign Out", onClick: handleLogout },
-        ]
+        ...(isAdmin ? [{ label: "Admin Panel", link: "/admin" }] : []),
+        { label: "Account Settings", link: "/account" },
+        { label: "My Presets", link: "/my-presets" },
+        { label: "Sign Out", onClick: handleLogout },
+      ]
       : [{ label: "Login", link: "/login" }]),
   ];
 
@@ -234,7 +234,7 @@ export default function Navbar() {
           socialItems={socialItems}
           displaySocials={true}
           displayItemNumbering={true}
-          logoUrl="/logo.png"
+          logoUrl="/snapgrade-logo.png"
           colors={['#2e1065', '#3b0764', '#4c1d95']}
           accentColor="#a855f7"
           menuButtonColor="#ffffff"
@@ -243,6 +243,31 @@ export default function Navbar() {
           onMenuOpen={() => setMobileOpen(true)}
           onMenuClose={() => setMobileOpen(false)}
         />
+
+        {/* ── Mobile Profile Picture (top-left, login status only) ── */}
+        <div className="fixed top-[2em] left-[2em] z-[50] pointer-events-none flex items-center">
+          {user ? (
+            user.photoURL ? (
+              <Image
+                src={user.photoURL}
+                alt="Profile"
+                width={36}
+                height={36}
+                className="rounded-full object-cover border-2 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-purple-600/30 border-2 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center justify-center">
+                <span className="text-white text-sm font-bold">
+                  {user.email?.[0]?.toUpperCase() || "U"}
+                </span>
+              </div>
+            )
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+              <User size={16} className="text-gray-400" />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── DOCK (Desktop — fixed top) ── */}
@@ -310,48 +335,48 @@ export default function Navbar() {
             ref={profileRef}
             className="fixed top-[80px] right-[calc(50%-280px)] w-56 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden z-[1100]"
           >
-          <div className="px-4 py-3 border-b border-zinc-800">
-            <p className="text-sm font-medium text-white">
-              {user.displayName || "User"}
-            </p>
-            <p className="text-xs text-gray-400">{user.email}</p>
-          </div>
-          {isAdmin && (
+            <div className="px-4 py-3 border-b border-zinc-800">
+              <p className="text-sm font-medium text-white">
+                {user.displayName || "User"}
+              </p>
+              <p className="text-xs text-gray-400">{user.email}</p>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  router.push("/admin");
+                  setProfileOpen(false);
+                }}
+                className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
+              >
+                Admin Panel
+              </button>
+            )}
             <button
               onClick={() => {
-                router.push("/admin");
+                router.push("/account");
                 setProfileOpen(false);
               }}
               className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
             >
-              Admin Panel
+              Account Settings
             </button>
-          )}
-          <button
-            onClick={() => {
-              router.push("/account");
-              setProfileOpen(false);
-            }}
-            className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
-          >
-            Account Settings
-          </button>
-          <button
-            onClick={() => {
-              router.push("/my-presets");
-              setProfileOpen(false);
-            }}
-            className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
-          >
-            My Presets
-          </button>
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left px-4 py-3 hover:bg-red-600 text-red-400 text-sm"
-          >
-            Sign Out
-          </button>
-        </div>
+            <button
+              onClick={() => {
+                router.push("/my-presets");
+                setProfileOpen(false);
+              }}
+              className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
+            >
+              My Presets
+            </button>
+            <button
+              onClick={handleLogout}
+              className="block w-full text-left px-4 py-3 hover:bg-red-600 text-red-400 text-sm"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       )}
 

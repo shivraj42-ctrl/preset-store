@@ -16,7 +16,7 @@ export default function Hero() {
         <Typewriter
           options={{
             strings: [
-              "XMP Store",
+              "SnapGrid",
               "Premium Lightroom Presets",
               "Transform Your Photos"
             ],

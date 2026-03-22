@@ -236,7 +236,7 @@ export default function PresetPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: "INR",
-        name: "XMP Store",
+        name: "SnapGrid",
         description: preset.name,
         order_id: order.id,
 

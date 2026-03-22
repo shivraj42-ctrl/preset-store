@@ -10,7 +10,7 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="space-y-3">
-            <h3 className="text-white text-lg font-semibold">XMP Store</h3>
+            <h3 className="text-white text-lg font-semibold">SnapGrid</h3>
             <p className="text-sm leading-relaxed">
               Premium Lightroom presets to transform your photography. Created by professionals, for creators.
             </p>
@@ -61,7 +61,7 @@ export default function Footer() {
         {/* Divider + Copyright */}
         <div className="border-t border-zinc-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs">
-            © {new Date().getFullYear()} XMP Store. All rights reserved.
+            © {new Date().getFullYear()} SnapGrid. All rights reserved.
           </p>
           <div className="flex gap-6 text-xs">
             <span className="hover:text-purple-400 cursor-pointer transition">Terms of Service</span>

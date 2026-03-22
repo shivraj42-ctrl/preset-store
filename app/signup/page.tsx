@@ -143,7 +143,7 @@ function SignupContent() {
           {/* Title */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold tracking-tight mb-1">Create your account</h1>
-            <p className="text-sm text-gray-400">Join XMP Store and start editing</p>
+            <p className="text-sm text-gray-400">Join SnapGrid and start editing</p>
           </div>
 
           {/* Error */}

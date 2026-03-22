@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
@@ -52,10 +53,27 @@ export default function HeroSection({ previewImages }: { previewImages: string[]
 
       {/* Center content */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        {/* SnapGrid Logo */}
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="mb-8 flex justify-center"
+        >
+          <Image
+            src="/snapgrade-logo.png"
+            alt="SnapGrid"
+            width={280}
+            height={70}
+            className="w-[220px] sm:w-[280px] md:w-[320px] h-auto object-contain drop-shadow-[0_0_25px_rgba(168,85,247,0.4)]"
+            priority
+          />
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         >
           <span className="inline-block text-xs uppercase tracking-[4px] text-purple-400 mb-6 font-medium">
             Premium Lightroom Presets

@@ -1,4 +1,4 @@
-// Core TypeScript interfaces for the XMP Store
+// Core TypeScript interfaces for the SnapGrid
 
 export interface Preset {
   id: string;

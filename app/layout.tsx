@@ -20,18 +20,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "XMP Store — Premium Lightroom Presets",
-    template: "%s | XMP Store",
+    default: "SnapGrid — Premium Lightroom Presets",
+    template: "%s | SnapGrid",
   },
   description:
     "Transform your photos instantly with premium Lightroom Classic presets. Browse, preview, and download professional-grade presets used by top creators.",
   keywords: ["Lightroom presets", "photo editing", "photography", "presets download", "XMP presets"],
   openGraph: {
-    title: "XMP Store — Premium Lightroom Presets",
+    title: "SnapGrid — Premium Lightroom Presets",
     description:
       "Transform your photos instantly with premium Lightroom Classic presets used by top creators.",
     type: "website",
-    siteName: "XMP Store",
+    siteName: "SnapGrid",
   },
 };
 

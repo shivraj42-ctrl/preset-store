@@ -90,7 +90,7 @@ export default function CartDrawer({ open, setOpen }: any) {
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount, currency: "INR",
-        name: "XMP Store", description: "Cart Checkout",
+        name: "SnapGrid", description: "Cart Checkout",
         order_id: order.id,
         handler: async function (response: any) {
           try {

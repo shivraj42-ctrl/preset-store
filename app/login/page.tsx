@@ -146,7 +146,7 @@ function LoginContent() {
           {/* Logo / Title */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold tracking-tight mb-1">Welcome back</h1>
-            <p className="text-sm text-gray-400">Sign in to your XMP Store account</p>
+            <p className="text-sm text-gray-400">Sign in to your SnapGrid account</p>
           </div>
 
           {/* Error */}

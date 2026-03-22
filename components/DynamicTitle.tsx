@@ -8,7 +8,7 @@ export default function DynamicTitle() {
       <Typewriter
         options={{
           strings: [
-            "XMP Store",
+            "SnapGrid",
             "Premium Lightroom Presets",
             "Upgrade Your Photos"
           ],

@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Smartphone, Monitor, Cloud, Download, FolderOpen, Import, CheckCircle2, Copy, Play } from "lucide-react";
 
 export const metadata = {
-  title: "How to Install Presets - XMP Store",
+  title: "How to Install Presets - SnapGrid",
   description: "Learn how to import and use your new presets in Adobe Lightroom Mobile, Lightroom Classic (Desktop), and Lightroom CC.",
 };
 

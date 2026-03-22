@@ -5,7 +5,7 @@ describe('Footer Component', () => {
   it('renders correctly', () => {
     render(<Footer />);
     // Check if brand name is rendered
-    expect(screen.getByText('XMP Store')).toBeInTheDocument();
+    expect(screen.getByText('SnapGrid')).toBeInTheDocument();
     
     // Check if expected section headers are there
     expect(screen.getByText('Quick Links')).toBeInTheDocument();

@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     });
 
     const mailOptions = {
-      from: '"XMP Store" <noreply@xmpstore.com>',
+      from: '"SnapGrid" <noreply@xmpstore.com>',
       to: email,
       subject: `Your Receipt for ${presetName}`,
       html: `
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
             <p style="font-size: 16px; color: #333;">You can download your presets directly from your <a href="https://yourwebsite.com/my-presets" style="color: #7c3aed; text-decoration: none;">dashboard here</a>.</p>
           </div>
           <div style="background-color: #f5f5f5; padding: 15px; text-align: center; color: #888; font-size: 12px;">
-            &copy; ${new Date().getFullYear()} XMP Store. All rights reserved.
+            &copy; ${new Date().getFullYear()} SnapGrid. All rights reserved.
           </div>
         </div>
       `,

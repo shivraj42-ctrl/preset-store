@@ -52,7 +52,7 @@ export default function CartPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: "INR",
-        name: "XMP Store",
+        name: "SnapGrid",
         description: "Cart Checkout",
         order_id: order.id,
 
