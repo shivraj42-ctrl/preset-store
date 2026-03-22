@@ -83,11 +83,11 @@ export default async function Home() {
       <GalleryTeaser photos={galleryPhotos} />
 
       {/* 6. Stats */}
-      <StatsSection
+      {/* <StatsSection
         totalPresets={presets.length}
         totalCustomers={totalCustomers}
         totalPhotos={galleryPhotos.length}
-      />
+      /> */}
 
       {/* 7. Footer */}
       <Footer />
