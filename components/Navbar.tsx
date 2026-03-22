@@ -164,7 +164,7 @@ export default function Navbar() {
         <div className="relative">
           <ShoppingCart size={20} className="text-white" />
           {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-[9px] w-4 h-4 flex items-center justify-center rounded-full text-white font-bold">
+            <span className="absolute -top-2 -right-2 bg-purple-500/80 backdrop-blur-sm border border-purple-400/30 text-[9px] w-4 h-4 flex items-center justify-center rounded-full text-white font-bold shadow-[0_0_8px_rgba(168,85,247,0.5)]">
               {cartCount}
             </span>
           )}

@@ -19,7 +19,7 @@ export default function CartPage() {
   };
 
   useEffect(() => {
-    setCart(getCart());
+    setCart(getCart(user?.uid));
   }, []);
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -84,7 +84,7 @@ export default function CartPage() {
               }
 
               // ✅ CLEAR CART
-              clearCart();
+              clearCart(user?.uid);
               setCart([]); // ✅ added for UI update
 
               showToast("Payment successful 🎉"); // ✅ replaced alert
@@ -149,8 +149,8 @@ export default function CartPage() {
 
                 <button
                   onClick={() => {
-                    removeFromCart(item.id);
-                    setCart(getCart());
+                    removeFromCart(item.id, user?.uid);
+                    setCart(getCart(user?.uid));
                   }}
                   className="text-red-500"
                 >

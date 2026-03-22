@@ -517,7 +517,7 @@ export default function PresetPage() {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     flyToCart();
-                    addToCart(preset);
+                    addToCart(preset, user?.uid);
                     showToast("Added to cart 🛒");
                   }}
                   className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-purple-300 border border-purple-500/40 hover:bg-purple-500/10 hover:border-purple-500/70 transition-all duration-300"
