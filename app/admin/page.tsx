@@ -388,15 +388,15 @@ export default function AdminDashboard() {
           </BentoCard>
 
           <BentoCard className="md:col-span-3 lg:col-span-1" label="Manage Categories" enableStars={false}>
-            <form onSubmit={handleAddCategory} className="flex gap-2 mb-6 mt-2">
+            <form onSubmit={handleAddCategory} className="flex flex-col sm:flex-row gap-2 mb-6 mt-2">
               <input
                 type="text"
                 placeholder="New Category Name"
                 value={newCat}
                 onChange={(e) => setNewCat(e.target.value)}
-                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors"
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors min-w-0"
               />
-              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-5 py-2.5 rounded-xl text-sm text-white font-medium transition shadow-lg shadow-purple-500/20">Add</button>
+              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-5 py-2.5 rounded-xl text-sm text-white font-medium transition shadow-lg shadow-purple-500/20 whitespace-nowrap flex-shrink-0">Add</button>
             </form>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
@@ -409,24 +409,24 @@ export default function AdminDashboard() {
           </BentoCard>
 
           <BentoCard className="md:col-span-3 lg:col-span-2" label="Manage Promo Codes" enableStars={false}>
-            <form onSubmit={handleAddPromo} className="flex gap-3 mb-6 mt-2">
+            <form onSubmit={handleAddPromo} className="flex flex-col sm:flex-row gap-3 mb-6 mt-2">
               <input
                 type="text"
                 placeholder="CODE (e.g. SUMMER20)"
                 value={newPromoCode}
                 onChange={(e) => setNewPromoCode(e.target.value.toUpperCase())}
-                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 uppercase transition-colors"
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 uppercase transition-colors min-w-0"
               />
               <input
                 type="number"
                 placeholder="% Off"
                 value={newPromoDiscount}
                 onChange={(e) => setNewPromoDiscount(e.target.value)}
-                className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors"
+                className="w-full sm:w-24 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors min-w-0 flex-shrink-0"
                 min="1"
                 max="100"
               />
-              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-8 py-2.5 rounded-xl text-sm text-white font-medium transition shadow-lg shadow-purple-500/20">Create</button>
+              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-8 py-2.5 rounded-xl text-sm text-white font-medium transition shadow-lg shadow-purple-500/20 flex-shrink-0 whitespace-nowrap">Create</button>
             </form>
             <div className="flex flex-wrap gap-3">
               {promoCodes.map((promo) => (
