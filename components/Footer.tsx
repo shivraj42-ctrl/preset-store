@@ -23,6 +23,7 @@ export default function Footer() {
               <Link href="/" className="hover:text-purple-400 transition">Home</Link>
               <Link href="/presets" className="hover:text-purple-400 transition">Presets</Link>
               <Link href="/free" className="hover:text-purple-400 transition">Free Presets</Link>
+              <Link href="/how-to-install" className="hover:text-purple-400 transition">How to Install</Link>
               <Link href="/contact" className="hover:text-purple-400 transition">Contact</Link>
             </div>
           </div>

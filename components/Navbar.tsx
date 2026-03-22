@@ -20,9 +20,11 @@ import {
   LogIn,
   Menu,
   X,
+  BookOpen,
 } from "lucide-react";
 import CartDrawer from "@/components/CartDrawer";
 import Dock from "@/components/Dock";
+import StaggeredMenu from "@/components/StaggeredMenu";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -139,6 +141,11 @@ export default function Navbar() {
       onClick: () => router.push("/gallery"),
     },
     {
+      icon: <BookOpen size={20} className="text-white" />,
+      label: "Tutorial",
+      onClick: () => router.push("/how-to-install"),
+    },
+    {
       icon: <Instagram size={20} className="text-white" />,
       label: "Social",
       onClick: () =>
@@ -195,26 +202,47 @@ export default function Navbar() {
     },
   ];
 
+  const mobileMenuItems = [
+    { label: "Home", link: "/" },
+    { label: "Contact", link: "/contact" },
+    { label: "Gallery", link: "/gallery" },
+    { label: "Tutorial", link: "/how-to-install" },
+    { label: "Search", onClick: () => setSearchOpen(true) },
+    { label: `Cart (${cartCount})`, onClick: () => setCartOpen(true) },
+    ...(user
+      ? [
+          ...(isAdmin ? [{ label: "Admin Panel", link: "/admin" }] : []),
+          { label: "Account Settings", link: "/account" },
+          { label: "My Presets", link: "/my-presets" },
+          { label: "Sign Out", onClick: handleLogout },
+        ]
+      : [{ label: "Login", link: "/login" }]),
+  ];
+
+  const socialItems = [
+    { label: "Instagram", link: "https://www.instagram.com/shivraj.png?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" }
+  ];
+
   return (
     <>
-      {/* ── MOBILE TOP BAR (logo + hamburger) ── */}
-      <div className="md:hidden sticky top-0 z-[900] w-full bg-white/5 backdrop-blur-xl border-b border-white/10">
-        <div className="px-6 py-3 flex items-center justify-between">
-          <Link href="/" className="flex-shrink-0">
-            <img
-              src="/logo.png"
-              alt="XMPStore Logo"
-              className="h-12 w-auto"
-              style={{ filter: "drop-shadow(0 0 10px rgba(168,85,247,0.8))" }}
-            />
-          </Link>
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="text-white p-2"
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
+      {/* ── MOBILE MENU (StaggeredMenu) ── */}
+      <div className="md:hidden">
+        <StaggeredMenu
+          isFixed={true}
+          position="right"
+          items={mobileMenuItems}
+          socialItems={socialItems}
+          displaySocials={true}
+          displayItemNumbering={true}
+          logoUrl="/logo.png"
+          colors={['#2e1065', '#3b0764', '#4c1d95']}
+          accentColor="#a855f7"
+          menuButtonColor="#ffffff"
+          openMenuButtonColor="#ffffff"
+          changeMenuColorOnOpen={true}
+          onMenuOpen={() => setMobileOpen(true)}
+          onMenuClose={() => setMobileOpen(false)}
+        />
       </div>
 
       {/* ── DOCK (Desktop — fixed top) ── */}
@@ -327,184 +355,7 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* ── MOBILE OVERLAY ── */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-[950] md:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
 
-      {/* ── MOBILE MENU ── */}
-      <div
-        className={`fixed top-0 right-0 h-full w-72 bg-black/40 backdrop-blur-2xl border-l border-white/10 z-[960] md:hidden transform transition-transform duration-300 shadow-2xl ${
-          mobileOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <span className="text-lg font-semibold text-purple-400">Menu</span>
-          <button
-            onClick={() => setMobileOpen(false)}
-            className="text-gray-400 hover:text-white"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Mobile Search */}
-        <div className="p-4 border-b border-zinc-800">
-          <form
-            onSubmit={(e) => {
-              handleSearch(e);
-              setMobileOpen(false);
-            }}
-            className="relative"
-          >
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 text-white text-sm px-4 py-2.5 pr-10 rounded-lg focus:outline-none focus:border-purple-500"
-            />
-            <button
-              type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-            >
-              <Search size={16} />
-            </button>
-          </form>
-        </div>
-
-        {/* User info */}
-        {user && (
-          <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-800 flex items-center justify-center text-sm font-semibold border border-zinc-700">
-              {user.photoURL ? (
-                <Image
-                  src={user.photoURL}
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <span className="text-white">
-                  {user.email?.[0]?.toUpperCase() || "U"}
-                </span>
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">
-                {user.displayName || "User"}
-              </p>
-              <p className="text-xs text-gray-400">{user.email}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Links */}
-        <div className="p-4 space-y-1">
-          <Link
-            href="/"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-          >
-            <Home size={18} /> Home
-          </Link>
-          <Link
-            href="/contact"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-          >
-            <Mail size={18} /> Contact
-          </Link>
-          <Link
-            href="/gallery"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-          >
-            <ImageIcon size={18} /> Gallery
-          </Link>
-          <a
-            href="https://www.instagram.com/shivraj.png?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-          >
-            <Instagram size={18} /> Social
-          </a>
-
-          <div className="border-t border-zinc-800 my-2" />
-
-          {/* Cart */}
-          <button
-            onClick={() => {
-              setCartOpen(true);
-              setMobileOpen(false);
-            }}
-            className="flex items-center gap-3 w-full text-left px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-          >
-            <ShoppingCart size={18} /> Cart
-            {cartCount > 0 && (
-              <span className="ml-auto bg-red-500 text-[10px] px-2 py-0.5 rounded-full text-white">
-                {cartCount}
-              </span>
-            )}
-          </button>
-
-          <div className="border-t border-zinc-800 my-2" />
-
-          {user ? (
-            <>
-              {isAdmin && (
-                <button
-                  onClick={() => {
-                    router.push("/admin");
-                    setMobileOpen(false);
-                  }}
-                  className="flex items-center gap-3 w-full text-left px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-                >
-                  Admin Panel
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  router.push("/account");
-                  setMobileOpen(false);
-                }}
-                className="flex items-center gap-3 w-full text-left px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-              >
-                Account Settings
-              </button>
-              <button
-                onClick={() => {
-                  router.push("/my-presets");
-                  setMobileOpen(false);
-                }}
-                className="flex items-center gap-3 w-full text-left px-3 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-purple-400 transition"
-              >
-                My Presets
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 w-full text-left px-3 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition"
-              >
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-3 py-3 rounded-lg text-purple-400 font-medium hover:bg-white/10 transition"
-            >
-              <LogIn size={18} /> Login / Sign Up
-            </Link>
-          )}
-        </div>
-      </div>
 
       {/* ── Esc to close search ── */}
       {searchOpen && (
