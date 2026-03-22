@@ -473,6 +473,7 @@ export const StaggeredMenu = ({
           className="staggered-menu-panel absolute top-0 right-0 h-full bg-white flex flex-col p-[6em_2em_2em_2em] overflow-y-auto z-10 backdrop-blur-[12px] pointer-events-auto"
           style={{ WebkitBackdropFilter: 'blur(12px)' }}
           aria-hidden={!open}
+          {...(!open ? { inert: "true" } : {})}
         >
           <div className="sm-panel-inner flex-1 flex flex-col gap-5">
             <ul
