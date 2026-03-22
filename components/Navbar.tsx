@@ -20,6 +20,7 @@ import {
   LogIn,
   Menu,
   X,
+  BookOpen,
 } from "lucide-react";
 import CartDrawer from "@/components/CartDrawer";
 import Dock from "@/components/Dock";
@@ -140,6 +141,11 @@ export default function Navbar() {
       onClick: () => router.push("/gallery"),
     },
     {
+      icon: <BookOpen size={20} className="text-white" />,
+      label: "Tutorial",
+      onClick: () => router.push("/how-to-install"),
+    },
+    {
       icon: <Instagram size={20} className="text-white" />,
       label: "Social",
       onClick: () =>
@@ -200,6 +206,7 @@ export default function Navbar() {
     { label: "Home", link: "/" },
     { label: "Contact", link: "/contact" },
     { label: "Gallery", link: "/gallery" },
+    { label: "Tutorial", link: "/how-to-install" },
     { label: "Search", onClick: () => setSearchOpen(true) },
     { label: `Cart (${cartCount})`, onClick: () => setCartOpen(true) },
     ...(user
