@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import cloudinary from "@/lib/cloudinary";
 
+// Increase the body size limit to 10MB for image uploads
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+// For App Router: increase the body size limit
+export const maxDuration = 60; // seconds
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();

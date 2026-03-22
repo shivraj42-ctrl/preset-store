@@ -98,12 +98,21 @@ export default function AdminGalleryPage() {
       body: formData,
     });
 
+    const text = await res.text();
+
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Upload failed");
+      let errorMsg = "Upload failed";
+      try {
+        const err = JSON.parse(text);
+        errorMsg = err.error || errorMsg;
+      } catch {
+        // Response is not JSON (e.g. "Request Entity Too Large")
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
     }
 
-    const data = await res.json();
+    const data = JSON.parse(text);
     setUploadProgress(null);
     return data.url;
   };
