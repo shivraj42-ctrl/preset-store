@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Heart, ShoppingCart, Eye } from "lucide-react"
+import { Heart, ShoppingCart, Eye, CheckCircle } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { db } from "@/lib/firebase"
 import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore"
@@ -15,6 +15,7 @@ export default function PresetCard({ preset }: any) {
   const [wishlisted, setWishlisted] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
+  const [isPurchased, setIsPurchased] = useState(false)
 
   // Check wishlist status
   useEffect(() => {
@@ -30,6 +31,23 @@ export default function PresetCard({ preset }: any) {
     }
 
     checkWishlist()
+  }, [user, preset?.id])
+
+  // Check purchase status
+  useEffect(() => {
+    if (!user || !preset?.id) return
+
+    const checkPurchase = async () => {
+      try {
+        const res = await fetch(`/api/check-purchase?userId=${user.uid}&presetId=${preset.id}`)
+        const data = await res.json()
+        setIsPurchased(data.purchased)
+      } catch (err) {
+        // silently fail
+      }
+    }
+
+    checkPurchase()
   }, [user, preset?.id])
 
   const toggleWishlist = async (e: React.MouseEvent) => {
@@ -111,11 +129,13 @@ export default function PresetCard({ preset }: any) {
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
             {/* Price badge */}
             <span className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
-              preset.price === 0
+              isPurchased
                 ? "bg-green-500/20 text-green-300 border-green-500/30"
-                : "bg-white/10 text-white border-white/10"
+                : preset.price === 0
+                  ? "bg-green-500/20 text-green-300 border-green-500/30"
+                  : "bg-white/10 text-white border-white/10"
             }`}>
-              {preset.price === 0 ? "Free" : `₹${preset.price}`}
+              {isPurchased ? "Owned" : preset.price === 0 ? "Free" : `₹${preset.price}`}
             </span>
 
             {/* Wishlist button */}
@@ -151,8 +171,8 @@ export default function PresetCard({ preset }: any) {
               <span>Preview</span>
             </div>
 
-            {/* Add to cart button */}
-            {preset.price > 0 && (
+            {/* Add to cart button — hidden if already purchased */}
+            {preset.price > 0 && !isPurchased && (
               <button
                 onClick={handleAddToCart}
                 className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg backdrop-blur-md text-xs font-medium transition-all duration-300 ${
@@ -164,6 +184,14 @@ export default function PresetCard({ preset }: any) {
                 <ShoppingCart size={13} />
                 <span>{addedToCart ? "Added!" : "Cart"}</span>
               </button>
+            )}
+
+            {/* Owned indicator */}
+            {isPurchased && (
+              <div className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-300 text-xs font-medium">
+                <CheckCircle size={13} />
+                <span>Owned ✓</span>
+              </div>
             )}
           </div>
         </div>
