@@ -87,21 +87,32 @@ export default function AdminGalleryPage() {
     reader.readAsDataURL(file);
   };
 
-  // Upload file via server-side API route (signed upload, no preset needed)
+  // Upload file via signed client-side upload (bypasses Vercel's 4.5MB limit)
   const uploadToCloudinary = async (file: File): Promise<string> => {
     const MAX_SIZE_MB = 10;
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
       throw new Error(`File too large. Maximum size is ${MAX_SIZE_MB}MB.`);
     }
 
+    // Step 1: Get a signature from our server
+    setUploadProgress("Preparing upload...");
+    const sigRes = await fetch("/api/cloudinary-signature", { method: "POST" });
+    if (!sigRes.ok) throw new Error("Failed to get upload signature");
+    const { signature, timestamp, folder, cloudName, apiKey } = await sigRes.json();
+
+    // Step 2: Upload directly to Cloudinary from the browser
     setUploadProgress("Uploading to Cloudinary...");
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("signature", signature);
+    formData.append("timestamp", String(timestamp));
+    formData.append("folder", folder);
+    formData.append("api_key", apiKey);
 
-    const res = await fetch("/api/upload-image", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      { method: "POST", body: formData }
+    );
 
     const text = await res.text();
 
@@ -109,7 +120,7 @@ export default function AdminGalleryPage() {
       let errorMsg = "Upload failed";
       try {
         const err = JSON.parse(text);
-        errorMsg = err.error || errorMsg;
+        errorMsg = err.error?.message || errorMsg;
       } catch {
         errorMsg = text || errorMsg;
       }
@@ -118,7 +129,7 @@ export default function AdminGalleryPage() {
 
     const data = JSON.parse(text);
     setUploadProgress(null);
-    return data.url;
+    return data.secure_url;
   };
 
   const handleUpload = async () => {
