@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 
 const useMedia = (queries: string[], values: any[], defaultValue: any) => {
@@ -69,7 +69,8 @@ const Masonry = ({
   blurToFocus = true,
   colorShiftOnHover = false,
   className = "",
-  onItemClick
+  onItemClick,
+  likeButton
 }: {
   items: MasonryItem[];
   ease?: string;
@@ -82,6 +83,7 @@ const Masonry = ({
   colorShiftOnHover?: boolean;
   className?: string;
   onItemClick?: (id: string, item: MasonryItem) => void;
+  likeButton?: (id: string) => ReactNode;
 }) => {
   const columns = useMedia(
     ['(min-width:1500px)', '(min-width:1000px)', '(min-width:600px)', '(min-width:400px)'],
@@ -238,11 +240,13 @@ const Masonry = ({
               <div className="color-overlay absolute inset-0 rounded-[10px] bg-gradient-to-tr from-purple-500/50 to-indigo-500/50 opacity-0 pointer-events-none" />
             )}
             
-            {item.title && (
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent rounded-b-[10px] opacity-0 hover:opacity-100 transition-opacity duration-300">
-                <p className="text-white text-sm font-medium">{item.title}</p>
+            {/* Bottom overlay with title and like */}
+            <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent rounded-b-[10px] opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <div className="flex items-end justify-between gap-2">
+                <p className="text-white text-sm font-medium truncate">{item.title || ''}</p>
+                {likeButton && <div onClick={(e) => e.stopPropagation()}>{likeButton(item.id)}</div>}
               </div>
-            )}
+            </div>
           </div>
         </div>
       ))}
