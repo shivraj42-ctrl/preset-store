@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import AboutMe from "@/components/AboutMe";
 import FeaturedPresets from "@/components/FeaturedPresets";
 import HomeClient from "@/components/HomeClient";
 import GalleryTeaser from "@/components/GalleryTeaser";
@@ -60,8 +60,9 @@ export default async function Home() {
     .slice(0, 3)
     .map((p) => p.coverImage || p.afterImage || "");
 
-  // Featured presets (first 8 for the scrolling strip)
-  const featured = presets.slice(0, 8);
+  // Featured presets: use trending-flagged ones, fallback to first 8
+  const trending = presets.filter((p: any) => p.isTrending);
+  const featured = trending.length > 0 ? trending : presets.slice(0, 8);
 
   return (
     <div className="min-h-screen text-white">
@@ -70,8 +71,8 @@ export default async function Home() {
       {/* 1. Hero */}
       <HeroSection previewImages={previewImages} />
 
-      {/* 2. Before/After */}
-      <BeforeAfterSlider />
+      {/* 2. About Me */}
+      <AboutMe />
 
       {/* 3. Featured / Trending */}
       <FeaturedPresets presets={featured} />

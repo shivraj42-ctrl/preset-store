@@ -7,7 +7,7 @@ import BentoGrid, { BentoCard } from "@/components/MagicBento";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, getDocs, collection, deleteDoc, addDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs, collection, deleteDoc, addDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 
@@ -238,7 +238,6 @@ export default function AdminDashboard() {
       await deleteDoc(doc(db, "presets", id));
       setPresets(presets.filter((p) => p.id !== id));
       alert("Preset deleted");
-      // Refresh stats
       setStats((prev) => ({
         ...prev,
         uploads: prev.uploads - 1,
@@ -246,6 +245,16 @@ export default function AdminDashboard() {
     } catch (err) {
       alert("Error deleting preset");
       console.error("Delete error:", err);
+    }
+  };
+
+  const handleToggleTrending = async (id: string, current: boolean) => {
+    try {
+      await updateDoc(doc(db, "presets", id), { isTrending: !current });
+      setPresets(presets.map((p) => p.id === id ? { ...p, isTrending: !current } : p));
+    } catch (err) {
+      alert("Failed to update trending status");
+      console.error("Trending toggle error:", err);
     }
   };
 
@@ -452,13 +461,14 @@ export default function AdminDashboard() {
                       <th className="text-left pb-4 font-medium">Name</th>
                       <th className="text-center pb-4 font-medium">Category</th>
                       <th className="text-center pb-4 font-medium">Price</th>
+                      <th className="text-center pb-4 font-medium">Trending</th>
                       <th className="text-center pb-4 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {presets.length === 0 ? (
                       <tr>
-                        <td className="py-8 text-center text-gray-500 bg-white/[0.02] rounded-xl" colSpan={5}>
+                        <td className="py-8 text-center text-gray-500 bg-white/[0.02] rounded-xl" colSpan={6}>
                           <div className="flex flex-col items-center justify-center">
                             <span className="text-3xl mb-2">📸</span>
                             No presets yet
@@ -489,6 +499,18 @@ export default function AdminDashboard() {
                             ) : (
                               <span className="text-gray-200">₹{preset.price}</span>
                             )}
+                          </td>
+                          <td className="text-center py-4">
+                            <button
+                              onClick={() => handleToggleTrending(preset.id, !!preset.isTrending)}
+                              className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
+                                preset.isTrending
+                                  ? "bg-yellow-500/20 border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30"
+                                  : "bg-white/[0.04] border-white/[0.08] text-gray-500 hover:text-yellow-300 hover:border-yellow-500/30 hover:bg-yellow-500/10"
+                              }`}
+                            >
+                              {preset.isTrending ? "⭐ Trending" : "☆ Set Trending"}
+                            </button>
                           </td>
                           <td className="text-center py-4">
                             <button

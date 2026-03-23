@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PresetReviews from "@/components/PresetReviews";
 import Image from "next/image";
-import { addToCart } from "@/lib/cart";
+import { addToCart, removeFromCart } from "@/lib/cart";
 import { saveUserPreset } from "@/lib/saveUserPreset";
 import { useProtectedAction } from "@/lib/useProtectedAction";
 import { useAuth } from "@/context/AuthContext";
@@ -261,9 +261,12 @@ export default function PresetPage() {
                 type: "purchased",
               });
 
+              // Remove from cart if it was there
+              removeFromCart(preset.id, user?.uid);
+
               setIsPurchased(true);
               setShowSuccess(true);
-              showToast("Payment successful 🎉");
+              showToast("Payment successful ");
             } else {
               showToast("Payment verification failed", "error");
             }
@@ -366,11 +369,10 @@ export default function PresetPage() {
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 30 }}
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-2xl backdrop-blur-md ${
-            toast.type === "success"
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-2xl backdrop-blur-md ${toast.type === "success"
               ? "bg-green-600/90 shadow-[0_0_25px_rgba(34,197,94,0.4)]"
               : "bg-red-500/90 shadow-[0_0_25px_rgba(239,68,68,0.4)]"
-          }`}
+            }`}
         >
           {toast.type === "success" ? (
             <CheckCircle size={16} />
@@ -506,8 +508,8 @@ export default function PresetPage() {
                 {preset.price === 0
                   ? "Download Free"
                   : isPurchased
-                  ? "Download Preset"
-                  : `Buy ₹${preset.price}`}
+                    ? "Download Preset"
+                    : `Buy ₹${preset.price}`}
               </motion.button>
 
               {/* Secondary: Add to Cart */}

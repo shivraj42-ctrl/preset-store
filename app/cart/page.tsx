@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import { getCart, removeFromCart, clearCart } from "@/lib/cart";
 import { useAuth } from "@/context/AuthContext";
 import { saveUserPreset } from "@/lib/saveUserPreset";
+import { db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function CartPage() {
   const [cart, setCart] = useState<any[]>([]);
@@ -76,6 +78,14 @@ export default function CartPage() {
 
               // ✅ SAVE ALL PRESETS (NO DUPLICATES)
               for (const item of cart) {
+                // Save to purchases collection (for ownership check)
+                await setDoc(doc(db, "purchases", `${user.uid}_${item.id}`), {
+                  userId: user.uid,
+                  presetId: item.id,
+                  paymentId: response.razorpay_payment_id,
+                  createdAt: serverTimestamp(),
+                });
+                // Save to user_presets collection
                 await saveUserPreset({
                   userId: user.uid,
                   presetId: item.id,

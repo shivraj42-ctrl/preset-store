@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { getCart, removeFromCart, clearCart } from "@/lib/cart";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { saveUserPreset } from "@/lib/saveUserPreset";
 import { db } from "@/lib/firebase";
@@ -100,7 +100,17 @@ export default function CartDrawer({ open, setOpen }: any) {
             });
             const data = await verifyRes.json();
             if (data.success) {
-              for (const item of cart) { await saveUserPreset({ userId: user.uid, presetId: item.id, type: "purchased" }); }
+              for (const item of cart) {
+                // Save to purchases collection (for ownership check)
+                await setDoc(doc(db, "purchases", `${user.uid}_${item.id}`), {
+                  userId: user.uid,
+                  presetId: item.id,
+                  paymentId: response.razorpay_payment_id,
+                  createdAt: serverTimestamp(),
+                });
+                // Save to user_presets collection
+                await saveUserPreset({ userId: user.uid, presetId: item.id, type: "purchased" });
+              }
               clearCart(user?.uid); setCart([]);
               window.dispatchEvent(new Event("cart:update"));
               setOpen(false);
