@@ -87,10 +87,9 @@ export default function AdminGalleryPage() {
     reader.readAsDataURL(file);
   };
 
-  // Upload file directly to Cloudinary from the browser (bypasses Vercel's 4.5MB limit)
+  // Upload file via server-side API route (signed upload, no preset needed)
   const uploadToCloudinary = async (file: File): Promise<string> => {
-    // Client-side 12MB limit
-    const MAX_SIZE_MB = 12;
+    const MAX_SIZE_MB = 10;
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
       throw new Error(`File too large. Maximum size is ${MAX_SIZE_MB}MB.`);
     }
@@ -98,17 +97,11 @@ export default function AdminGalleryPage() {
     setUploadProgress("Uploading to Cloudinary...");
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "ml_default");
-    formData.append("folder", "gallery");
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    const res = await fetch("/api/upload-image", {
+      method: "POST",
+      body: formData,
+    });
 
     const text = await res.text();
 
@@ -116,7 +109,7 @@ export default function AdminGalleryPage() {
       let errorMsg = "Upload failed";
       try {
         const err = JSON.parse(text);
-        errorMsg = err.error?.message || errorMsg;
+        errorMsg = err.error || errorMsg;
       } catch {
         errorMsg = text || errorMsg;
       }
@@ -125,7 +118,7 @@ export default function AdminGalleryPage() {
 
     const data = JSON.parse(text);
     setUploadProgress(null);
-    return data.secure_url;
+    return data.url;
   };
 
   const handleUpload = async () => {
