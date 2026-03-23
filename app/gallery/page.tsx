@@ -4,6 +4,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GalleryGrid from "@/components/GalleryGrid";
 
+// Always fetch fresh data — no caching
+export const dynamic = "force-dynamic";
+
 export default async function GalleryPage() {
   let photos: any[] = [];
 
