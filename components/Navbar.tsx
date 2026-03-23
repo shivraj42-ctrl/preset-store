@@ -189,7 +189,9 @@ export default function Navbar() {
           </span>
         )
       ) : (
-        <LogIn size={20} className="text-white" />
+        <div className="w-6 h-6 rounded-full bg-gray-500/40 border border-white/20 flex items-center justify-center overflow-hidden">
+          <User size={14} className="text-gray-300 translate-y-[1px]" />
+        </div>
       ),
       label: user ? "Profile" : "Login",
       onClick: () => {
