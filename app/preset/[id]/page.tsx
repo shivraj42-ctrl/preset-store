@@ -384,18 +384,18 @@ export default function PresetPage() {
       )}
 
       {/* BACK BUTTON */}
-      <div className="max-w-6xl mx-auto px-6 pt-6">
+      <div className="fixed top-6 left-6 z-50">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => router.back()}
-          className="group flex items-center gap-2 text-gray-400 text-sm hover:text-white transition-colors"
+          className="group flex items-center gap-2 text-gray-400 text-sm hover:text-white transition-colors backdrop-blur-md bg-black/60 border border-white/[0.1] px-4 py-2 rounded-full cursor-pointer shadow-lg"
         >
           <ArrowLeft
             size={16}
-            className="group-hover:-translate-x-1 transition-transform"
+            className="group-hover:-translate-x-1 transition-transform pointer-events-none"
           />
-          <span>Back</span>
+          <span className="pointer-events-none">Back</span>
         </motion.button>
       </div>
 
