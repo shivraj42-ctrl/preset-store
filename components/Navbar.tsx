@@ -115,6 +115,19 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", h);
   }, []);
 
+  // ── Prefetch all navigation routes for instant page transitions ──
+  useEffect(() => {
+    const commonRoutes = ["/"];
+    const userRoutes = ["/contact", "/gallery", "/how-to-install", "/cart", "/my-presets", "/account", "/login"];
+    const adminRoutes = ["/admin", "/admin/gallery", "/upload", "/account"];
+
+    const routes = isAdmin
+      ? [...commonRoutes, ...adminRoutes]
+      : [...commonRoutes, ...userRoutes];
+
+    routes.forEach((route) => router.prefetch(route));
+  }, [isAdmin, router]);
+
   // ── Profile dock item (shared) ──
   const profileDockItem = {
     icon: user ? (
