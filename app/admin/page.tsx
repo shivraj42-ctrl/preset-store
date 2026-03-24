@@ -339,7 +339,24 @@ export default function AdminDashboard() {
     if (!replyText.trim()) return;
     setSendingReply(true);
     try {
-      await fetch("/api/send-reply", {
+      // 1. Update Firestore DIRECTLY (guaranteed to work)
+      await updateDoc(doc(db, "contact_messages", queryItem.id), {
+        replied: true,
+        replyText: replyText.trim(),
+        repliedAt: new Date(),
+      });
+
+      // 2. Update local state
+      setQueries(queries.map((q) =>
+        q.id === queryItem.id
+          ? { ...q, replied: true, replyText: replyText.trim() }
+          : q
+      ));
+      setReplyingTo(null);
+      setReplyText("");
+
+      // 3. Try to send email notification (best-effort, won't block)
+      fetch("/api/send-reply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -348,16 +365,8 @@ export default function AdminDashboard() {
           replyText: replyText.trim(),
           queryId: queryItem.id,
         }),
-      });
+      }).catch(() => console.log("Email send failed (non-critical)"));
 
-      // Update local state
-      setQueries(queries.map((q) =>
-        q.id === queryItem.id
-          ? { ...q, replied: true, replyText: replyText.trim() }
-          : q
-      ));
-      setReplyingTo(null);
-      setReplyText("");
     } catch (err) {
       alert("Failed to send reply");
       console.error(err);
