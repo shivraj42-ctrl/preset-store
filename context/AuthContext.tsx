@@ -5,24 +5,26 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useRouter, usePathname } from "next/navigation";
 
-/* ✅ NEW IMPORTS */
 import { getCart, clearCart, loadFirebaseCart } from "@/lib/cart";
 import { db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  isAdmin: false,
 });
 
 export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -32,14 +34,14 @@ export const AuthProvider = ({ children }: any) => {
       setUser(user);
       setLoading(false);
 
-      /* 🔥 NEW LOGIC START */
-
       if (user) {
         try {
-          // ✅ 1. GET GUEST CART
-          const guestCart = getCart(null);
+          // Check admin status
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          setIsAdmin(userDoc.exists() && userDoc.data().isAdmin === true);
 
-          // ✅ 2. MERGE INTO FIREBASE
+          // Guest cart merge
+          const guestCart = getCart(null);
           if (guestCart.length > 0) {
             for (const item of guestCart) {
               await setDoc(
@@ -47,33 +49,26 @@ export const AuthProvider = ({ children }: any) => {
                 item
               );
             }
-
-            // ✅ 3. CLEAR GUEST CART
             clearCart(null);
           }
 
-          // ✅ 4. LOAD FIREBASE CART → LOCAL
+          // Load Firebase cart → local
           await loadFirebaseCart(user.uid);
 
         } catch (err) {
           console.log("Cart merge/load error:", err);
         }
       } else {
-        // ✅ USER LOGGED OUT → SWITCH TO GUEST CART
+        setIsAdmin(false);
         window.dispatchEvent(new Event("cart:update"));
       }
-
-      /* 🔥 NEW LOGIC END */
-
-      // ✅ ONLY redirect if on login/signup page
-
     });
 
     return () => unsubscribe();
   }, [pathname, router]);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

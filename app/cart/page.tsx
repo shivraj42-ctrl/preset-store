@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { getCart, removeFromCart, clearCart } from "@/lib/cart";
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +11,15 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function CartPage() {
   const [cart, setCart] = useState<any[]>([]);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const router = useRouter();
+
+  // Redirect admin away from cart
+  useEffect(() => {
+    if (isAdmin) {
+      router.push("/admin");
+    }
+  }, [isAdmin, router]);
 
   /* ✅ NEW: TOAST STATE */
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -23,6 +32,8 @@ export default function CartPage() {
   useEffect(() => {
     setCart(getCart(user?.uid));
   }, []);
+
+  if (isAdmin) return null;
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 

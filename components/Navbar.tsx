@@ -6,8 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { signOut } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
 import { getCart } from "@/lib/cart";
 import {
   Home,
@@ -21,6 +20,9 @@ import {
   Menu,
   X,
   BookOpen,
+  LayoutDashboard,
+  Upload,
+  MessageSquare,
 } from "lucide-react";
 import CartDrawer from "@/components/CartDrawer";
 import Dock from "@/components/Dock";
@@ -29,14 +31,13 @@ import StaggeredMenu from "@/components/StaggeredMenu";
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   // Auth state
-  const [isAdmin, setIsAdmin] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // Cart state
+  // Cart state (hidden for admin)
   const [cartCount, setCartCount] = useState(0);
   const [animateCart, setAnimateCart] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -49,16 +50,6 @@ export default function Navbar() {
 
   // Mobile
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  // ── Auth / Admin ──
-  useEffect(() => {
-    const fetchAdmin = async () => {
-      if (!user) return;
-      const snap = await getDoc(doc(db, "users", user.uid));
-      if (snap.exists()) setIsAdmin(snap.data().isAdmin === true);
-    };
-    fetchAdmin();
-  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (e: any) => {
@@ -75,8 +66,9 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // ── Cart ──
+  // ── Cart (skip for admin) ──
   useEffect(() => {
+    if (isAdmin) return;
     const update = () => setCartCount(getCart(user?.uid).length);
     update();
     window.addEventListener("storage", update);
@@ -85,7 +77,7 @@ export default function Navbar() {
       window.removeEventListener("storage", update);
       window.removeEventListener("cart:update", update);
     };
-  }, [user, refreshKey]);
+  }, [user, refreshKey, isAdmin]);
 
   useEffect(() => {
     setRefreshKey((p) => p + 1);
@@ -123,8 +115,39 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", h);
   }, []);
 
+  // ── Profile dock item (shared) ──
+  const profileDockItem = {
+    icon: user ? (
+      user.photoURL ? (
+        <Image
+          src={user.photoURL}
+          alt="profile"
+          width={24}
+          height={24}
+          className="rounded-full object-cover"
+        />
+      ) : (
+        <span className="text-white text-sm font-bold">
+          {user.email?.[0]?.toUpperCase() || "U"}
+        </span>
+      )
+    ) : (
+      <div className="w-6 h-6 rounded-full bg-gray-500/40 border border-white/20 flex items-center justify-center overflow-hidden">
+        <User size={14} className="text-gray-300 translate-y-[1px]" />
+      </div>
+    ),
+    label: user ? "Profile" : "Login",
+    onClick: () => {
+      if (user) {
+        setProfileOpen(!profileOpen);
+      } else {
+        router.push("/login");
+      }
+    },
+  };
+
   // ── Build dock items ──
-  const dockItems = [
+  const userDockItems = [
     {
       icon: <Home size={20} className="text-white" />,
       label: "Home",
@@ -173,38 +196,52 @@ export default function Navbar() {
       label: `Cart${cartCount > 0 ? ` (${cartCount})` : ""}`,
       onClick: () => setCartOpen(true),
     },
-    {
-      icon: user ? (
-        user.photoURL ? (
-          <Image
-            src={user.photoURL}
-            alt="profile"
-            width={24}
-            height={24}
-            className="rounded-full object-cover"
-          />
-        ) : (
-          <span className="text-white text-sm font-bold">
-            {user.email?.[0]?.toUpperCase() || "U"}
-          </span>
-        )
-      ) : (
-        <div className="w-6 h-6 rounded-full bg-gray-500/40 border border-white/20 flex items-center justify-center overflow-hidden">
-          <User size={14} className="text-gray-300 translate-y-[1px]" />
-        </div>
-      ),
-      label: user ? "Profile" : "Login",
-      onClick: () => {
-        if (user) {
-          setProfileOpen(!profileOpen);
-        } else {
-          router.push("/login");
-        }
-      },
-    },
+    profileDockItem,
   ];
 
-  const mobileMenuItems = [
+  // ── Admin dock items ──
+  const adminDockItems = [
+    {
+      icon: <Home size={20} className="text-white" />,
+      label: "Home",
+      onClick: () => router.push("/"),
+    },
+    {
+      icon: <LayoutDashboard size={20} className="text-white" />,
+      label: "Dashboard",
+      onClick: () => router.push("/admin"),
+    },
+    {
+      icon: <Upload size={20} className="text-white" />,
+      label: "Upload",
+      onClick: () => router.push("/upload"),
+    },
+    {
+      icon: <MessageSquare size={20} className="text-white" />,
+      label: "Queries",
+      onClick: () => router.push("/admin#queries"),
+    },
+    {
+      icon: <ImageIcon size={20} className="text-white" />,
+      label: "Gallery",
+      onClick: () => router.push("/admin/gallery"),
+    },
+    {
+      icon: <Instagram size={20} className="text-white" />,
+      label: "Social",
+      onClick: () =>
+        window.open(
+          "https://www.instagram.com/shivraj.png?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+          "_blank"
+        ),
+    },
+    profileDockItem,
+  ];
+
+  const dockItems = isAdmin ? adminDockItems : userDockItems;
+
+  // ── Mobile menu items ──
+  const userMobileMenuItems = [
     { label: "Home", link: "/" },
     { label: "Contact", link: "/contact" },
     { label: "Gallery", link: "/gallery" },
@@ -213,13 +250,24 @@ export default function Navbar() {
     { label: `Cart (${cartCount})`, onClick: () => setCartOpen(true) },
     ...(user
       ? [
-        ...(isAdmin ? [{ label: "Admin Panel", link: "/admin" }] : []),
         { label: "Account Settings", link: "/account" },
         { label: "My Presets", link: "/my-presets" },
         { label: "Sign Out", onClick: handleLogout },
       ]
       : [{ label: "Login", link: "/login" }]),
   ];
+
+  const adminMobileMenuItems = [
+    { label: "Home", link: "/" },
+    { label: "Dashboard", link: "/admin" },
+    { label: "Upload Preset", link: "/upload" },
+    { label: "User Queries", link: "/admin#queries" },
+    { label: "Manage Gallery", link: "/admin/gallery" },
+    { label: "Account Settings", link: "/account" },
+    { label: "Sign Out", onClick: handleLogout },
+  ];
+
+  const mobileMenuItems = isAdmin ? adminMobileMenuItems : userMobileMenuItems;
 
   const socialItems = [
     { label: "Instagram", link: "https://www.instagram.com/shivraj.png?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" }
@@ -363,15 +411,17 @@ export default function Navbar() {
             >
               Account Settings
             </button>
-            <button
-              onClick={() => {
-                router.push("/my-presets");
-                setProfileOpen(false);
-              }}
-              className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
-            >
-              My Presets
-            </button>
+            {!isAdmin && (
+              <button
+                onClick={() => {
+                  router.push("/my-presets");
+                  setProfileOpen(false);
+                }}
+                className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
+              >
+                My Presets
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="block w-full text-left px-4 py-3 hover:bg-red-600 text-red-400 text-sm"
@@ -393,8 +443,8 @@ export default function Navbar() {
         />
       )}
 
-      {/* ── CART DRAWER ── */}
-      {cartOpen && <CartDrawer open={cartOpen} setOpen={setCartOpen} />}
+      {/* ── CART DRAWER (hidden for admin) ── */}
+      {!isAdmin && cartOpen && <CartDrawer open={cartOpen} setOpen={setCartOpen} />}
     </>
   );
 }

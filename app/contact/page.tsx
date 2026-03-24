@@ -1,15 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ContactPage() {
+  const { isAdmin } = useAuth();
+  const router = useRouter();
+
+  // Redirect admin to dashboard
+  useEffect(() => {
+    if (isAdmin) {
+      router.push("/admin#queries");
+    }
+  }, [isAdmin, router]);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [error, setError] = useState("");
+
+  if (isAdmin) return null;
 
   const validate = () => {
     if (!name.trim()) {

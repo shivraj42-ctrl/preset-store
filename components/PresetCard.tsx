@@ -11,15 +11,15 @@ import { addToCart } from "@/lib/cart"
 import { motion } from "framer-motion"
 
 export default function PresetCard({ preset }: any) {
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
   const [wishlisted, setWishlisted] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
   const [isPurchased, setIsPurchased] = useState(false)
 
-  // Check wishlist status
+  // Check wishlist status (skip for admin)
   useEffect(() => {
-    if (!user || !preset?.id) return
+    if (!user || !preset?.id || isAdmin) return
 
     const checkWishlist = async () => {
       try {
@@ -31,11 +31,11 @@ export default function PresetCard({ preset }: any) {
     }
 
     checkWishlist()
-  }, [user, preset?.id])
+  }, [user, preset?.id, isAdmin])
 
-  // Check purchase status
+  // Check purchase status (skip for admin)
   useEffect(() => {
-    if (!user || !preset?.id) return
+    if (!user || !preset?.id || isAdmin) return
 
     const checkPurchase = async () => {
       try {
@@ -48,7 +48,7 @@ export default function PresetCard({ preset }: any) {
     }
 
     checkPurchase()
-  }, [user, preset?.id])
+  }, [user, preset?.id, isAdmin])
 
   const toggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -138,8 +138,8 @@ export default function PresetCard({ preset }: any) {
               {isPurchased ? "Owned" : preset.price === 0 ? "Free" : `₹${preset.price}`}
             </span>
 
-            {/* Wishlist button */}
-            {user && (
+            {/* Wishlist button (hidden for admin) */}
+            {user && !isAdmin && (
               <button
                 onClick={toggleWishlist}
                 className={`p-2 rounded-full backdrop-blur-md transition-all duration-300 ${
@@ -171,8 +171,8 @@ export default function PresetCard({ preset }: any) {
               <span>Preview</span>
             </div>
 
-            {/* Add to cart button — hidden if already purchased */}
-            {preset.price > 0 && !isPurchased && (
+            {/* Add to cart button — hidden if already purchased or if admin */}
+            {preset.price > 0 && !isPurchased && !isAdmin && (
               <button
                 onClick={handleAddToCart}
                 className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg backdrop-blur-md text-xs font-medium transition-all duration-300 ${
@@ -186,8 +186,8 @@ export default function PresetCard({ preset }: any) {
               </button>
             )}
 
-            {/* Owned indicator */}
-            {isPurchased && (
+            {/* Owned indicator (hidden for admin) */}
+            {isPurchased && !isAdmin && (
               <div className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-300 text-xs font-medium">
                 <CheckCircle size={13} />
                 <span>Owned ✓</span>
