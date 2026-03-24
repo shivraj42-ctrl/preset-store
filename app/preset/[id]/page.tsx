@@ -132,7 +132,7 @@ export default function PresetPage() {
   const [loading, setLoading] = useState(true);
 
   const { checkAuth } = useProtectedAction();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   const [isPurchased, setIsPurchased] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -303,8 +303,9 @@ export default function PresetPage() {
     if (id) fetchPreset();
   }, [id]);
 
-  /* CHECK PURCHASE */
+  /* CHECK PURCHASE (skip for admin) */
   useEffect(() => {
+    if (isAdmin) return;
     const checkPurchase = async () => {
       if (!user) return;
       const res = await fetch(
@@ -314,7 +315,7 @@ export default function PresetPage() {
       setIsPurchased(data.purchased);
     };
     checkPurchase();
-  }, [user, id]);
+  }, [user, id, isAdmin]);
 
   /* LOADING STATE */
   if (loading) {
@@ -495,71 +496,75 @@ export default function PresetPage() {
               </div>
             )}
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              {/* Primary: Buy / Download */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleBuy}
-                className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-[0_0_25px_rgba(168,85,247,0.35)] hover:shadow-[0_0_40px_rgba(168,85,247,0.5)] transition-all duration-300"
-              >
-                <Download size={18} />
-                {preset.price === 0
-                  ? "Download Free"
-                  : isPurchased
-                    ? "Download Preset"
-                    : `Buy ₹${preset.price}`}
-              </motion.button>
-
-              {/* Secondary: Add to Cart */}
-              {!isPurchased && preset.price > 0 && (
+            {/* CTA Buttons (hidden for admin) */}
+            {!isAdmin && (
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                {/* Primary: Buy / Download */}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    flyToCart();
-                    addToCart(preset, user?.uid);
-                    showToast("Added to cart 🛒");
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-purple-300 border border-purple-500/40 hover:bg-purple-500/10 hover:border-purple-500/70 transition-all duration-300"
+                  onClick={handleBuy}
+                  className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-[0_0_25px_rgba(168,85,247,0.35)] hover:shadow-[0_0_40px_rgba(168,85,247,0.5)] transition-all duration-300"
                 >
-                  <ShoppingCart size={18} />
-                  Add to Cart
+                  <Download size={18} />
+                  {preset.price === 0
+                    ? "Download Free"
+                    : isPurchased
+                      ? "Download Preset"
+                      : `Buy ₹${preset.price}`}
                 </motion.button>
-              )}
 
-              {isPurchased && (
-                <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
-                  <CheckCircle size={16} />
-                  <span>Already purchased</span>
-                </div>
-              )}
-            </div>
+                {/* Secondary: Add to Cart */}
+                {!isPurchased && preset.price > 0 && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      flyToCart();
+                      addToCart(preset, user?.uid);
+                      showToast("Added to cart 🛒");
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-purple-300 border border-purple-500/40 hover:bg-purple-500/10 hover:border-purple-500/70 transition-all duration-300"
+                  >
+                    <ShoppingCart size={18} />
+                    Add to Cart
+                  </motion.button>
+                )}
+
+                {isPurchased && (
+                  <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
+                    <CheckCircle size={16} />
+                    <span>Already purchased</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Divider */}
             <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
 
-            {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-3">
-              {trustBadges.map((badge, i) => {
-                const Icon = badge.icon;
-                return (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center gap-2 py-3 px-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center"
-                  >
-                    <Icon
-                      size={18}
-                      className="text-purple-400"
-                    />
-                    <span className="text-[11px] text-gray-400 font-medium leading-tight">
-                      {badge.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            {/* Trust Badges (hidden for admin) */}
+            {!isAdmin && (
+              <div className="grid grid-cols-3 gap-3">
+                {trustBadges.map((badge, i) => {
+                  const Icon = badge.icon;
+                  return (
+                    <div
+                      key={i}
+                      className="flex flex-col items-center gap-2 py-3 px-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center"
+                    >
+                      <Icon
+                        size={18}
+                        className="text-purple-400"
+                      />
+                      <span className="text-[11px] text-gray-400 font-medium leading-tight">
+                        {badge.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         </div>
       </section>

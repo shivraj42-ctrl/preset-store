@@ -212,16 +212,6 @@ export default function Navbar() {
       onClick: () => router.push("/admin"),
     },
     {
-      icon: <Upload size={20} className="text-white" />,
-      label: "Upload",
-      onClick: () => router.push("/upload"),
-    },
-    {
-      icon: <MessageSquare size={20} className="text-white" />,
-      label: "Queries",
-      onClick: () => router.push("/admin#queries"),
-    },
-    {
       icon: <ImageIcon size={20} className="text-white" />,
       label: "Gallery",
       onClick: () => router.push("/admin/gallery"),
@@ -260,8 +250,6 @@ export default function Navbar() {
   const adminMobileMenuItems = [
     { label: "Home", link: "/" },
     { label: "Dashboard", link: "/admin" },
-    { label: "Upload Preset", link: "/upload" },
-    { label: "User Queries", link: "/admin#queries" },
     { label: "Manage Gallery", link: "/admin/gallery" },
     { label: "Account Settings", link: "/account" },
     { label: "Sign Out", onClick: handleLogout },
@@ -391,17 +379,7 @@ export default function Navbar() {
               </p>
               <p className="text-xs text-gray-400">{user.email}</p>
             </div>
-            {isAdmin && (
-              <button
-                onClick={() => {
-                  router.push("/admin");
-                  setProfileOpen(false);
-                }}
-                className="block w-full text-left px-4 py-3 hover:bg-zinc-800 text-sm text-white"
-              >
-                Admin Panel
-              </button>
-            )}
+
             <button
               onClick={() => {
                 router.push("/account");

@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs, orderBy, addDoc } from "firebase/firestore";
 
 export default function ContactPage() {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const router = useRouter();
 
   // Redirect admin to dashboard
@@ -22,6 +24,46 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [error, setError] = useState("");
+
+  // User's previous queries
+  const [userQueries, setUserQueries] = useState<any[]>([]);
+  const [loadingQueries, setLoadingQueries] = useState(false);
+
+  // Fetch user's submitted queries
+  useEffect(() => {
+    if (!user?.email || isAdmin) return;
+    setLoadingQueries(true);
+
+    const fetchUserQueries = async () => {
+      try {
+        const q = query(
+          collection(db, "contact_messages"),
+          where("email", "==", user.email)
+        );
+        const snap = await getDocs(q);
+        const queries = snap.docs
+          .map((d) => {
+            const data = d.data();
+            return {
+              id: d.id,
+              ...data,
+              createdAt: data.createdAt?.seconds
+                ? new Date(data.createdAt.seconds * 1000)
+                : data.createdAt?.toDate
+                ? data.createdAt.toDate()
+                : new Date(data.createdAt),
+            };
+          })
+          .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
+        setUserQueries(queries);
+      } catch (err) {
+        console.log("Error fetching user queries:", err);
+      }
+      setLoadingQueries(false);
+    };
+
+    fetchUserQueries();
+  }, [user, isAdmin, status]); // re-fetch after successful submission
 
   if (isAdmin) return null;
 
@@ -57,10 +99,6 @@ export default function ContactPage() {
     setStatus("sending");
 
     try {
-      // Dynamic import to avoid loading Firebase on initial render
-      const { db } = await import("@/lib/firebase");
-      const { addDoc, collection } = await import("firebase/firestore");
-
       await addDoc(collection(db, "contact_messages"), {
         name: name.trim(),
         email: email.trim(),
@@ -78,6 +116,16 @@ export default function ContactPage() {
       setError("Failed to send message. Please try again.");
     }
   };
+
+  // Pre-fill email if user is logged in
+  useEffect(() => {
+    if (user?.email && !email) {
+      setEmail(user.email);
+    }
+    if (user?.displayName && !name) {
+      setName(user.displayName);
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen text-white flex flex-col">
@@ -164,6 +212,74 @@ export default function ContactPage() {
 
         </div>
 
+        {/* ═══════ YOUR QUERIES SECTION ═══════ */}
+        {user && userQueries.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold mb-6 text-center">Your Queries</h2>
+            <div className="space-y-4">
+              {userQueries.map((q) => (
+                <div
+                  key={q.id}
+                  className={`rounded-2xl border p-6 transition-colors ${
+                    q.replied
+                      ? "bg-zinc-900/80 border-green-500/20"
+                      : "bg-zinc-900 border-zinc-800"
+                  }`}
+                >
+                  {/* Query header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-gray-500">
+                      {q.createdAt instanceof Date
+                        ? q.createdAt.toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : ""}
+                    </span>
+                    <span
+                      className={`text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider ${
+                        q.replied
+                          ? "bg-green-500/15 text-green-400 border border-green-500/25"
+                          : "bg-yellow-500/15 text-yellow-400 border border-yellow-500/25"
+                      }`}
+                    >
+                      {q.replied ? "Replied ✓" : "Pending"}
+                    </span>
+                  </div>
+
+                  {/* Your message */}
+                  <p className="text-sm text-gray-300 leading-relaxed mb-3">
+                    {q.message}
+                  </p>
+
+                  {/* Admin reply */}
+                  {q.replied && q.replyText && (
+                    <div className="mt-4 bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
+                      <p className="text-xs text-purple-400 font-semibold mb-2 uppercase tracking-wider">
+                        Admin Response
+                      </p>
+                      <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
+                        {q.replyText}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Waiting indicator */}
+                  {!q.replied && (
+                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                      Waiting for admin response
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Contact Info */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-8">
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
@@ -190,4 +306,4 @@ export default function ContactPage() {
 
     </div>
   );
-}
+}
