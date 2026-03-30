@@ -413,7 +413,7 @@ export default function PresetPage() {
             {/* Hero Image */}
             <div
               id="preset-hero-image"
-              className="relative w-full aspect-[4/5] sm:aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_40px_rgba(168,85,247,0.15)] group"
+              className="relative w-full aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_40px_rgba(168,85,247,0.15)] group"
             >
               <Image
                 src={preset.afterImage}

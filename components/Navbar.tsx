@@ -310,6 +310,9 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Spacer for mobile fixed header */}
+      <div className="md:hidden h-[70px]" />
+
       {/* ── DOCK (Desktop — fixed top) ── */}
       <div className="hidden md:block fixed top-0 left-0 right-0 z-[1000]">
         <Dock

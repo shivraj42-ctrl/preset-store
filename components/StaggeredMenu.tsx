@@ -100,8 +100,8 @@ export const StaggeredMenu = ({
       const offscreen = position === 'left' ? -100 : 100;
       gsap.set([panel, ...preLayers], { xPercent: offscreen });
 
-      gsap.set(plusH, { transformOrigin: '50% 50%', rotate: 0 });
-      gsap.set(plusV, { transformOrigin: '50% 50%', rotate: 90 });
+      gsap.set(plusH, { transformOrigin: '50% 50%', rotate: 0, xPercent: -50, yPercent: -50 });
+      gsap.set(plusV, { transformOrigin: '50% 50%', rotate: 90, xPercent: -50, yPercent: -50 });
       gsap.set(icon, { rotate: 0, transformOrigin: '50% 50%' });
 
       gsap.set(textInner, { yPercent: 0 });
@@ -381,7 +381,7 @@ export const StaggeredMenu = ({
 
   return (
     <div
-      className={`sm-scope z-40 ${isFixed ? `fixed top-0 left-0 w-screen overflow-hidden ${open ? 'h-screen' : 'h-auto pointer-events-none'}` : 'w-full h-full'}`}
+      className={`sm-scope z-40 ${isFixed ? `fixed top-0 left-0 w-screen ${open ? 'h-screen overflow-hidden' : 'h-auto pointer-events-none'}` : 'w-full h-full'}`}
     >
       <div
         className={
@@ -451,11 +451,11 @@ export const StaggeredMenu = ({
             >
               <span
                 ref={plusHRef}
-                className="sm-icon-line absolute left-1/2 top-1/2 w-full h-[2px] bg-current rounded-[2px] -translate-x-1/2 -translate-y-1/2 [will-change:transform]"
+                className="sm-icon-line absolute left-1/2 top-1/2 w-full h-[2px] bg-current rounded-[2px] [will-change:transform]"
               />
               <span
                 ref={plusVRef}
-                className="sm-icon-line sm-icon-line-v absolute left-1/2 top-1/2 w-full h-[2px] bg-current rounded-[2px] -translate-x-1/2 -translate-y-1/2 [will-change:transform]"
+                className="sm-icon-line sm-icon-line-v absolute left-1/2 top-1/2 w-full h-[2px] bg-current rounded-[2px] [will-change:transform]"
               />
             </span>
           </button>
@@ -547,7 +547,7 @@ export const StaggeredMenu = ({
 .sm-scope .sm-toggle-line { display: block; height: 1em; line-height: 1; }
 .sm-scope .sm-icon { position: relative; width: 14px; height: 14px; flex: 0 0 14px; display: inline-flex; align-items: center; justify-content: center; will-change: transform; }
 .sm-scope .sm-panel-itemWrap { position: relative; overflow: hidden; line-height: 1; }
-.sm-scope .sm-icon-line { position: absolute; left: 50%; top: 50%; width: 100%; height: 2px; background: currentColor; border-radius: 2px; transform: translate(-50%, -50%); will-change: transform; }
+.sm-scope .sm-icon-line { position: absolute; left: 50%; top: 50%; width: 100%; height: 2px; background: currentColor; border-radius: 2px; will-change: transform; }
 .sm-scope .sm-line { display: none !important; }
 .sm-scope .staggered-menu-panel { position: absolute; top: 0; right: 0; width: clamp(260px, 80vw, 420px); height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); display: flex; flex-direction: column; padding: 7rem 1.25rem 2.5rem 1.25rem; overflow-y: auto; z-index: 10; border-left: 1px solid rgba(255,255,255,0.05); }
 .sm-scope [data-position='left'] .staggered-menu-panel { right: auto; left: 0; }
