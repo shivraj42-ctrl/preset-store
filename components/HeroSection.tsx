@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
+import { optimizedCloudinaryUrl } from "@/lib/cloudinary-url";
 
 export default function HeroSection({ previewImages }: { previewImages: string[] }) {
   return (
@@ -44,7 +45,14 @@ export default function HeroSection({ previewImages }: { previewImages: string[]
               <div className="w-36 h-48 rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-500/20 rotate-[-6deg]"
                 style={{ transform: `rotate(${i === 0 ? -6 : i === 1 ? 4 : -3}deg)` }}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <Image
+                  src={optimizedCloudinaryUrl(img, 300)}
+                  alt="Preset preview"
+                  width={144}
+                  height={192}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               </div>
             </motion.div>
           </motion.div>

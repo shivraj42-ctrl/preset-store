@@ -10,7 +10,8 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import type { Preset } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+// ISR: serve from cache, revalidate in background every 60s
+export const revalidate = 60;
 
 export default async function Home() {
   let presets: Preset[] = [];

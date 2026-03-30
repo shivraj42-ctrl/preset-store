@@ -115,18 +115,7 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", h);
   }, []);
 
-  // ── Prefetch all navigation routes for instant page transitions ──
-  useEffect(() => {
-    const commonRoutes = ["/"];
-    const userRoutes = ["/contact", "/gallery", "/how-to-install", "/cart", "/my-presets", "/account", "/login"];
-    const adminRoutes = ["/admin", "/admin/gallery", "/upload", "/account"];
-
-    const routes = isAdmin
-      ? [...commonRoutes, ...adminRoutes]
-      : [...commonRoutes, ...userRoutes];
-
-    routes.forEach((route) => router.prefetch(route));
-  }, [isAdmin, router]);
+  // Prefetching is now handled automatically by <Link> in the Dock component
 
   // ── Profile dock item (shared) ──
   const profileDockItem = {
@@ -164,22 +153,22 @@ export default function Navbar() {
     {
       icon: <Home size={20} className="text-white" />,
       label: "Home",
-      onClick: () => router.push("/"),
+      href: "/",
     },
     {
       icon: <Mail size={20} className="text-white" />,
       label: "Contact",
-      onClick: () => router.push("/contact"),
+      href: "/contact",
     },
     {
       icon: <ImageIcon size={20} className="text-white" />,
       label: "Gallery",
-      onClick: () => router.push("/gallery"),
+      href: "/gallery",
     },
     {
       icon: <BookOpen size={20} className="text-white" />,
       label: "Tutorial",
-      onClick: () => router.push("/how-to-install"),
+      href: "/how-to-install",
     },
     {
       icon: <Instagram size={20} className="text-white" />,
@@ -217,17 +206,17 @@ export default function Navbar() {
     {
       icon: <Home size={20} className="text-white" />,
       label: "Home",
-      onClick: () => router.push("/"),
+      href: "/",
     },
     {
       icon: <LayoutDashboard size={20} className="text-white" />,
       label: "Dashboard",
-      onClick: () => router.push("/admin"),
+      href: "/admin",
     },
     {
       icon: <ImageIcon size={20} className="text-white" />,
       label: "Gallery",
-      onClick: () => router.push("/admin/gallery"),
+      href: "/admin/gallery",
     },
     {
       icon: <Instagram size={20} className="text-white" />,

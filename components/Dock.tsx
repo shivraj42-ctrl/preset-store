@@ -15,11 +15,13 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 
 function DockItem({
   children,
   className = "",
   onClick,
+  href,
   mouseX,
   spring,
   distance,
@@ -44,7 +46,7 @@ function DockItem({
   );
   const size = useSpring(targetSize, spring);
 
-  return (
+  const content = (
     <motion.div
       ref={ref}
       style={{ width: size, height: size }}
@@ -52,17 +54,27 @@ function DockItem({
       onHoverEnd={() => isHovered.set(0)}
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
-      onClick={onClick}
+      onClick={!href ? onClick : undefined}
       className={`relative inline-flex items-center justify-center rounded-full bg-white/10 border border-white/10 shadow-md cursor-pointer backdrop-blur-sm hover:bg-white/15 transition-colors ${className}`}
-      tabIndex={0}
-      role="button"
-      aria-haspopup="true"
+      tabIndex={href ? -1 : 0}
+      role={href ? undefined : "button"}
+      aria-haspopup={href ? undefined : "true"}
     >
       {Children.map(children, (child: any) =>
         cloneElement(child, { isHovered })
       )}
     </motion.div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} prefetch={true} className="no-underline" onClick={onClick}>
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }
 
 function DockLabel({ children, className = "", ...rest }: any) {
@@ -116,7 +128,8 @@ export default function Dock({
   items: {
     icon: React.ReactNode;
     label: string;
-    onClick: () => void;
+    onClick?: () => void;
+    href?: string;
     className?: string;
   }[];
   className?: string;
@@ -160,6 +173,7 @@ export default function Dock({
           <DockItem
             key={index}
             onClick={item.onClick}
+            href={item.href}
             className={item.className}
             mouseX={mouseX}
             spring={spring}

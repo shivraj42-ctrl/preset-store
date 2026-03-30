@@ -16,6 +16,7 @@ import {
   collection,
 } from "firebase/firestore";
 import Masonry from "./Masonry";
+import { optimizedCloudinaryUrl } from "@/lib/cloudinary-url";
 
 interface Photo {
   id: string;
@@ -111,13 +112,31 @@ function LikeButton({ photoId }: { photoId: string }) {
 }
 
 export default function GalleryGrid({ photos }: { photos: Photo[] }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const selectedPhoto = photos.find((p) => p.id === selected);
+  const selectedPhoto = selectedIndex !== null ? photos[selectedIndex] : null;
+
+  const goNext = useCallback(() => {
+    setSelectedIndex((prev) => {
+      if (prev === null) return null;
+      return prev < photos.length - 1 ? prev + 1 : 0;
+    });
+  }, [photos.length]);
+
+  const goPrev = useCallback(() => {
+    setSelectedIndex((prev) => {
+      if (prev === null) return null;
+      return prev > 0 ? prev - 1 : photos.length - 1;
+    });
+  }, [photos.length]);
+
+  const closeLightbox = useCallback(() => {
+    setSelectedIndex(null);
+  }, []);
 
   // Lock body scroll when lightbox is open
   useEffect(() => {
-    if (selected) {
+    if (selectedIndex !== null) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -125,20 +144,19 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [selected]);
+  }, [selectedIndex]);
 
-  // Close on Escape key
+  // Keyboard: Escape, ArrowLeft, ArrowRight
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelected(null);
+      if (selectedIndex === null) return;
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
-
-  const closeLightbox = useCallback(() => {
-    setSelected(null);
-  }, []);
+  }, [selectedIndex, closeLightbox, goNext, goPrev]);
 
   return (
     <>
@@ -153,15 +171,18 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               height: heights[i % heights.length],
             };
           })}
-          onItemClick={(id) => setSelected(id)}
+          onItemClick={(id) => {
+            const idx = photos.findIndex((p) => p.id === id);
+            if (idx !== -1) setSelectedIndex(idx);
+          }}
           colorShiftOnHover={true}
           likeButton={(id: string) => <LikeButton photoId={id} />}
         />
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox with prev/next navigation */}
       <AnimatePresence>
-        {selected && selectedPhoto && (
+        {selectedIndex !== null && selectedPhoto && (
           <motion.div
             key="lightbox-overlay"
             initial={{ opacity: 0 }}
@@ -172,7 +193,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
             style={{ zIndex: 9999 }}
             onClick={closeLightbox}
           >
-            {/* Close button — outside the inner div, always accessible */}
+            {/* Close button */}
             <button
               onClick={closeLightbox}
               className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"
@@ -181,30 +202,65 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               <X size={20} />
             </button>
 
-            {/* Image container */}
-            <motion.div
-              key="lightbox-content"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={selectedPhoto.imageUrl}
-                alt={selectedPhoto.title || "Photo"}
-                className="max-h-[80vh] max-w-full object-contain rounded-xl"
-              />
+            {/* Photo counter */}
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/50 text-sm font-medium tabular-nums" style={{ zIndex: 10000 }}>
+              {selectedIndex + 1} / {photos.length}
+            </div>
 
-              {/* Bottom bar: title + like */}
-              <div className="w-full flex items-center justify-between mt-4 px-2">
-                <p className="text-white/80 text-base font-medium truncate">
-                  {selectedPhoto.title || ""}
-                </p>
-                <LikeButton photoId={selectedPhoto.id} />
-              </div>
-            </motion.div>
+            {/* Previous arrow */}
+            {photos.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/25 transition-colors cursor-pointer backdrop-blur-sm"
+                style={{ zIndex: 10000 }}
+                aria-label="Previous photo"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+            )}
+
+            {/* Next arrow */}
+            {photos.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); goNext(); }}
+                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/25 transition-colors cursor-pointer backdrop-blur-sm"
+                style={{ zIndex: 10000 }}
+                aria-label="Next photo"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            )}
+
+            {/* Image container with dynamic transition */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedPhoto.id}
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={optimizedCloudinaryUrl(selectedPhoto.imageUrl, 1600, "90")}
+                  alt={selectedPhoto.title || "Photo"}
+                  className="max-h-[80vh] max-w-full object-contain rounded-xl"
+                />
+
+                {/* Bottom bar: title + like */}
+                <div className="w-full flex items-center justify-between mt-4 px-2">
+                  <p className="text-white/80 text-base font-medium truncate">
+                    {selectedPhoto.title || ""}
+                  </p>
+                  <LikeButton photoId={selectedPhoto.id} />
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

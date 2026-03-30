@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { useRouter, usePathname } from "next/navigation";
 
 import { getCart, clearCart, loadFirebaseCart } from "@/lib/cart";
 import { db } from "@/lib/firebase";
@@ -25,9 +24,6 @@ export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-
-  const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -65,7 +61,9 @@ export const AuthProvider = ({ children }: any) => {
     });
 
     return () => unsubscribe();
-  }, [pathname, router]);
+    // Auth listener should only subscribe once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, loading, isAdmin }}>

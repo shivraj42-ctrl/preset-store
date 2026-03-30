@@ -69,10 +69,10 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        {/* Razorpay Checkout Script */}
+        {/* Razorpay Checkout Script — loaded after page paint, only needed at purchase time */}
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
 
         <AuthProvider>

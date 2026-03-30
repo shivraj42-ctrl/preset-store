@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { motion } from "framer-motion";
+import { validateEmailDomain } from "@/lib/email-validator";
 
 function SignupContent() {
   const [email, setEmail] = useState("");
@@ -45,6 +46,13 @@ function SignupContent() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
+      return false;
+    }
+
+    // Block disposable/temporary email domains
+    const domainCheck = validateEmailDomain(email);
+    if (!domainCheck.valid) {
+      setError(domainCheck.reason || "Please use a valid email provider.");
       return false;
     }
 

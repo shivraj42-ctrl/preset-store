@@ -94,6 +94,7 @@ export default function PresetCard({ preset }: any) {
         transition={{ duration: 0.5 }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={() => setIsHovered(true)}
         className="group relative rounded-2xl overflow-hidden cursor-pointer
           bg-white/[0.05] backdrop-blur-xl border border-white/[0.08]
           hover:border-purple-500/40 hover:bg-white/[0.08]
@@ -162,9 +163,11 @@ export default function PresetCard({ preset }: any) {
           </div>
 
           {/* Hover action buttons */}
-          <div className={`absolute bottom-4 left-3 right-3 flex gap-2 z-10 transition-all duration-400 ${
-            isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}>
+          <div className={`absolute bottom-4 left-3 right-3 flex gap-2 z-10 transition-all duration-400
+            opacity-100 translate-y-0
+            md:opacity-0 md:translate-y-4
+            ${isHovered ? "md:opacity-100 md:translate-y-0" : ""}
+          `}>
             {/* View button */}
             <div className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 text-white text-xs font-medium hover:bg-white/20 transition-all">
               <Eye size={13} />
