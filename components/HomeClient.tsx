@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import PresetCard from "@/components/PresetCard";
 import type { Preset } from "@/lib/types";
-import { Search } from "lucide-react";
+import { Search, ArrowUpDown } from "lucide-react";
 
 export default function HomeClient({
   initialPresets,
@@ -15,15 +15,24 @@ export default function HomeClient({
 }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [sortOrder, setSortOrder] = useState<"high-to-low" | "low-to-high">("high-to-low");
 
-  const filteredPresets = initialPresets.filter((preset) => {
-    const matchesSearch = preset.name
-      ?.toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesCategory =
-      category === "All" || preset.category === category;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredPresets = useMemo(() => {
+    const filtered = initialPresets.filter((preset) => {
+      const matchesSearch = preset.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesCategory =
+        category === "All" || preset.category === category;
+      return matchesSearch && matchesCategory;
+    });
+
+    return [...filtered].sort((a, b) => {
+      const priceA = Number(a.price) || 0;
+      const priceB = Number(b.price) || 0;
+      return sortOrder === "high-to-low" ? priceB - priceA : priceA - priceB;
+    });
+  }, [initialPresets, search, category, sortOrder]);
 
   return (
     <section id="presets" className="py-24 relative overflow-hidden">
@@ -68,21 +77,51 @@ export default function HomeClient({
           </div>
         </div>
 
-        {/* Category pills */}
-        <div className="flex justify-center gap-2 mb-14 flex-wrap">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`px-5 py-2 rounded-full text-xs font-medium uppercase tracking-wider transition-all duration-300 ${
-                category === cat
-                  ? "bg-purple-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-500"
-                  : "bg-white/[0.04] text-gray-400 border border-white/[0.08] hover:bg-white/[0.08] hover:text-white hover:border-purple-500/30"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        {/* Category pills + Sort */}
+        <div className="flex flex-col items-center gap-4 mb-14">
+          <div className="flex justify-center gap-2 flex-wrap">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={`px-5 py-2 rounded-full text-xs font-medium uppercase tracking-wider transition-all duration-300 ${
+                  category === cat
+                    ? "bg-purple-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-500"
+                    : "bg-white/[0.04] text-gray-400 border border-white/[0.08] hover:bg-white/[0.08] hover:text-white hover:border-purple-500/30"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort toggle */}
+          <div className="flex items-center gap-2.5">
+            <ArrowUpDown size={14} className="text-gray-500" />
+            <span className="text-xs text-gray-500 uppercase tracking-wider">Price</span>
+            <div className="inline-flex rounded-full border border-white/[0.08] overflow-hidden backdrop-blur-sm">
+              <button
+                onClick={() => setSortOrder("high-to-low")}
+                className={`px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-all duration-300 ${
+                  sortOrder === "high-to-low"
+                    ? "bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                    : "bg-white/[0.04] text-gray-500 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                High → Low
+              </button>
+              <button
+                onClick={() => setSortOrder("low-to-high")}
+                className={`px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-all duration-300 ${
+                  sortOrder === "low-to-high"
+                    ? "bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                    : "bg-white/[0.04] text-gray-500 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                Low → High
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Grid */}

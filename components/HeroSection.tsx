@@ -9,8 +9,8 @@ import { optimizedCloudinaryUrl } from "@/lib/cloudinary-url";
 export default function HeroSection({ previewImages }: { previewImages: string[] }) {
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Animated gradient glows */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* Animated gradient glows — desktop only */}
+      <div className="absolute inset-0 pointer-events-none hidden md:block">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-purple-600/20 blur-[120px] animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-indigo-500/15 blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-violet-500/10 blur-[150px]" />

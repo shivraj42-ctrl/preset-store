@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PresetCard from "@/components/PresetCard";
@@ -17,6 +17,7 @@ function PresetsContent() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(querySearch);
   const [category, setCategory] = useState("All");
+  const [sortOrder, setSortOrder] = useState<"high-to-low" | "low-to-high">("high-to-low");
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -46,18 +47,26 @@ function PresetsContent() {
     fetchPresets();
   }, []);
 
-  const filteredPresets = presets.filter((preset: any) => {
-    const matchesSearch = preset.name?.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = category === "All" || preset.category === category;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredPresets = useMemo(() => {
+    const filtered = presets.filter((preset: any) => {
+      const matchesSearch = preset.name?.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = category === "All" || preset.category === category;
+      return matchesSearch && matchesCategory;
+    });
+
+    return [...filtered].sort((a: any, b: any) => {
+      const priceA = Number(a.price) || 0;
+      const priceB = Number(b.price) || 0;
+      return sortOrder === "high-to-low" ? priceB - priceA : priceA - priceB;
+    });
+  }, [presets, search, category, sortOrder]);
 
   const paginatedPresets = filteredPresets.slice(0, page * itemsPerPage);
 
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, category]);
+  }, [search, category, sortOrder]);
 
   return (
     <>
@@ -79,21 +88,51 @@ function PresetsContent() {
           />
         </div>
 
-        {/* CATEGORY FILTER */}
-        <div className="flex justify-center gap-4 mb-12 flex-wrap">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300 transform ${
-                category === cat
-                  ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.9)] scale-105"
-                  : "bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 hover:border-purple-500 hover:shadow-[0_0_12px_rgba(168,85,247,0.6)] hover:scale-110"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        {/* CATEGORY FILTER + SORT */}
+        <div className="flex flex-col items-center gap-6 mb-12">
+          {/* Category pills */}
+          <div className="flex justify-center gap-4 flex-wrap">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300 transform ${
+                  category === cat
+                    ? "bg-purple-500 text-white border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.9)] scale-105"
+                    : "bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 hover:border-purple-500 hover:shadow-[0_0_12px_rgba(168,85,247,0.6)] hover:scale-110"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Sort by price:</span>
+            <div className="inline-flex rounded-lg border border-zinc-700 overflow-hidden">
+              <button
+                onClick={() => setSortOrder("high-to-low")}
+                className={`px-3.5 py-1.5 text-xs font-medium transition-all duration-300 ${
+                  sortOrder === "high-to-low"
+                    ? "bg-purple-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.7)]"
+                    : "bg-zinc-900 text-gray-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+              >
+                High → Low
+              </button>
+              <button
+                onClick={() => setSortOrder("low-to-high")}
+                className={`px-3.5 py-1.5 text-xs font-medium transition-all duration-300 ${
+                  sortOrder === "low-to-high"
+                    ? "bg-purple-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.7)]"
+                    : "bg-zinc-900 text-gray-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+              >
+                Low → High
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* LOADING SKELETONS */}
