@@ -8,10 +8,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PresetReviews from "@/components/PresetReviews";
 import Image from "next/image";
-import { addToCart, removeFromCart } from "@/lib/cart";
+import { addToCart, removeFromCart, getCart } from "@/lib/cart";
 import { saveUserPreset } from "@/lib/saveUserPreset";
 import { useProtectedAction } from "@/lib/useProtectedAction";
 import { useAuth } from "@/context/AuthContext";
+import { optimizedCloudinaryUrl } from "@/lib/cloudinary-url";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -36,6 +37,39 @@ function DraggableCompare({
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  // Optimize Cloudinary URLs — serve at 800px width with auto quality/format
+  const optimizedBefore = optimizedCloudinaryUrl(beforeImage, 800, "auto");
+  const optimizedAfter = optimizedCloudinaryUrl(afterImage, 800, "auto");
+
+  // Preload both images in memory before showing the slider
+  useEffect(() => {
+    setImagesLoaded(false);
+    let cancelled = false;
+    const imgA = new window.Image();
+    const imgB = new window.Image();
+    let loadedCount = 0;
+
+    const onLoad = () => {
+      loadedCount++;
+      if (loadedCount >= 2 && !cancelled) setImagesLoaded(true);
+    };
+    const onError = () => {
+      // Still show slider even if one image fails
+      loadedCount++;
+      if (loadedCount >= 2 && !cancelled) setImagesLoaded(true);
+    };
+
+    imgA.onload = onLoad;
+    imgA.onerror = onError;
+    imgB.onload = onLoad;
+    imgB.onerror = onError;
+    imgA.src = optimizedBefore;
+    imgB.src = optimizedAfter;
+
+    return () => { cancelled = true; };
+  }, [optimizedBefore, optimizedAfter]);
 
   const updatePosition = useCallback(
     (clientX: number) => {
@@ -71,6 +105,26 @@ function DraggableCompare({
     setIsDragging(false);
   }, []);
 
+  // Skeleton loader while images are loading
+  if (!imagesLoaded) {
+    return (
+      <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-white/10 bg-white/[0.03]">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs text-gray-500 font-medium">Loading comparison…</span>
+          </div>
+        </div>
+        {/* Pulsing skeleton bars */}
+        <div className="absolute inset-0 animate-pulse">
+          <div className="absolute inset-y-0 left-0 w-1/2 bg-white/[0.03]" />
+          <div className="absolute inset-y-0 right-0 w-1/2 bg-white/[0.02]" />
+          <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-purple-500/20 -translate-x-1/2" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -83,7 +137,7 @@ function DraggableCompare({
     >
       {/* Before (full width, underneath) */}
       <img
-        src={beforeImage}
+        src={optimizedBefore}
         alt="Before"
         className="absolute inset-0 w-full h-full object-cover"
         draggable={false}
@@ -91,7 +145,7 @@ function DraggableCompare({
 
       {/* After (clip-path reveal — no overlap) */}
       <img
-        src={afterImage}
+        src={optimizedAfter}
         alt="After"
         className="absolute inset-0 w-full h-full object-cover"
         style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
@@ -136,6 +190,15 @@ export default function PresetPage() {
 
   const [isPurchased, setIsPurchased] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  /* CHECK IF ALREADY IN CART */
+  useEffect(() => {
+    if (!preset?.id) return;
+    const cart = getCart(user?.uid);
+    const inCart = cart.some((item: any) => item.id === preset.id);
+    setAddedToCart(inCart);
+  }, [preset?.id, user?.uid]);
 
   /* TOAST STATE */
   const [toast, setToast] = useState<{
@@ -517,17 +580,23 @@ export default function PresetPage() {
                 {/* Secondary: Add to Cart */}
                 {!isPurchased && preset.price > 0 && (
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: addedToCart ? 1 : 1.02 }}
+                    whileTap={{ scale: addedToCart ? 1 : 0.98 }}
                     onClick={() => {
+                      if (addedToCart) return;
                       flyToCart();
                       addToCart(preset, user?.uid);
+                      setAddedToCart(true);
                       showToast("Added to cart 🛒");
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-purple-300 border border-purple-500/40 hover:bg-purple-500/10 hover:border-purple-500/70 transition-all duration-300"
+                    className={`flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 ${
+                      addedToCart
+                        ? "text-green-300 border border-green-500/40 bg-green-500/10 cursor-default"
+                        : "text-purple-300 border border-purple-500/40 hover:bg-purple-500/10 hover:border-purple-500/70"
+                    }`}
                   >
-                    <ShoppingCart size={18} />
-                    Add to Cart
+                    {addedToCart ? <CheckCircle size={18} /> : <ShoppingCart size={18} />}
+                    {addedToCart ? "Added to Cart" : "Add to Cart"}
                   </motion.button>
                 )}
 

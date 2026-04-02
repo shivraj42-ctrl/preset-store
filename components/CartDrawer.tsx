@@ -80,17 +80,46 @@ export default function CartDrawer({ open, setOpen }: any) {
   /* ── Checkout ── */
   const handleCheckout = async () => {
     if (!user) { alert("Please login first"); setOpen(false); return; }
-    if (finalTotal === 0) { alert("Cart is empty"); return; }
+    if (cart.length === 0) { alert("Cart is empty"); return; }
+
+    // If promo code gives 100% off, complete purchase without payment
+    if (finalTotal === 0 && discount) {
+      try {
+        for (const item of cart) {
+          await setDoc(doc(db, "purchases", `${user.uid}_${item.id}`), {
+            userId: user.uid,
+            presetId: item.id,
+            paymentId: `PROMO_${discount.code}`,
+            promoCode: discount.code,
+            discountPercent: discount.percent,
+            originalAmount: total,
+            paidAmount: 0,
+            createdAt: serverTimestamp(),
+          });
+          await saveUserPreset({ userId: user.uid, presetId: item.id, type: "purchased" });
+        }
+        clearCart(user?.uid); setCart([]);
+        setDiscount(null); setPromoCode(""); setPromoMsg(null);
+        window.dispatchEvent(new Event("cart:update"));
+        setOpen(false);
+        setTimeout(() => { window.location.href = "/my-presets"; }, 1200);
+      } catch { alert("Error processing free checkout"); }
+      return;
+    }
+
     try {
       const res = await fetch("/api/create-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: finalTotal }),
       });
       const order = await res.json();
+      const description = discount
+        ? `Cart Checkout (${discount.percent}% off with ${discount.code})`
+        : "Cart Checkout";
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount, currency: "INR",
-        name: "SnapGrid", description: "Cart Checkout",
+        name: "SnapGrid", description,
         order_id: order.id,
         handler: async function (response: any) {
           try {
@@ -106,12 +135,19 @@ export default function CartDrawer({ open, setOpen }: any) {
                   userId: user.uid,
                   presetId: item.id,
                   paymentId: response.razorpay_payment_id,
+                  ...(discount && {
+                    promoCode: discount.code,
+                    discountPercent: discount.percent,
+                    originalAmount: total,
+                    paidAmount: finalTotal,
+                  }),
                   createdAt: serverTimestamp(),
                 });
                 // Save to user_presets collection
                 await saveUserPreset({ userId: user.uid, presetId: item.id, type: "purchased" });
               }
               clearCart(user?.uid); setCart([]);
+              setDiscount(null); setPromoCode(""); setPromoMsg(null);
               window.dispatchEvent(new Event("cart:update"));
               setOpen(false);
               setTimeout(() => { window.location.href = "/my-presets"; }, 1200);
