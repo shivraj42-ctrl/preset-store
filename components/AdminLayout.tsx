@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: any) {
     { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
     { name: "Presets", icon: Package, path: "/admin/presets" },
     { name: "Gallery", icon: ImageIcon, path: "/admin/gallery" },
-    { name: "Queries", icon: MessageSquare, path: "/admin#queries", badge: unreadCount },
+    { name: "Queries", icon: MessageSquare, path: "/admin/queries", badge: unreadCount },
     { name: "Users", icon: Users, path: "/admin/users" },
   ];
 
@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: any) {
         <nav className="space-y-2">
           {navItems.map((item, index) => {
             const Icon = item.icon;
-            const isActive = pathname === item.path;
+            const isActive = item.path === "/admin" ? pathname === "/admin" : pathname.startsWith(item.path);
 
             return (
               <Link key={index} href={item.path}>
